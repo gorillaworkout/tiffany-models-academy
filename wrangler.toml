@@ -1,0 +1,7 @@
+name = "tiffany-models-db"
+compatibility_date = "2024-04-16"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tiffany_models_db"
+database_id = "8f97c93d-9203-4b78-833b-67d5ac171d37"
