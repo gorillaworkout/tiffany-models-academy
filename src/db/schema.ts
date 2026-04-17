@@ -13,6 +13,7 @@ export const cabang = sqliteTable("cabang", {
 export const batch = sqliteTable("batch", {
   id: text("id").primaryKey(), // using text (uuid/timestamp) for easier frontend generation
   studioId: text("studio_id").notNull(), // points to studio.id
+  coachId: text("coach_id").default(""), // points to coach.id
   name: text("name").notNull(),
   status: text("status").notNull().default("Registration"),
   maxStudents: integer("max_students").notNull().default(30),
@@ -25,6 +26,7 @@ export const jadwal = sqliteTable("jadwal", {
   batchId: text("batch_id").notNull(),
   session: integer("session").notNull(),
   title: text("title").notNull(),
+  description: text("description"), // New field for detailed curriculum
   date: text("date"),
   time: text("time"),
   studio: text("studio"),
@@ -53,16 +55,27 @@ export const member = sqliteTable("member", {
 
 // 5. Tabel Studio/Location
 export const studio = sqliteTable("studio", {
-  id: text("id").primaryKey(), // Using text because current dummy uses string IDs like "Noble House, Jakarta"
+  id: text("id").primaryKey(),
   name: text("name").notNull(),
-  lat: text("lat").notNull(), // SQLite can store as text and cast to number
+  lat: text("lat").notNull(),
   lon: text("lon").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 6. Tabel Coach
 export const coach = sqliteTable("coach", {
-  id: text("id").primaryKey(), // using the name as id for simplicity like dummy data
+  id: text("id").primaryKey(),
   name: text("name").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+// 7. Tabel Absensi
+export const absensi = sqliteTable("absensi", {
+  id: text("id").primaryKey(),
+  memberId: integer("member_id").notNull(),
+  jadwalId: text("jadwal_id").notNull(), // points to jadwal.id
+  status: text("status").notNull(), // "hadir", "absen", "izin", "sakit"
+  lat: text("lat"), // GPS Check-in
+  lon: text("lon"), // GPS Check-in
+  checkInTime: text("check_in_time").default(sql`CURRENT_TIMESTAMP`),
 });

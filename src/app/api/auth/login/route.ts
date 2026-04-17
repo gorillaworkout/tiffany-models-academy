@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
     
-    const users = await d1Query('SELECT id, email, nama_lengkap as name, role, status FROM member WHERE email = ? AND password = ?', [data.email, data.password]);
+    const users = await d1Query('SELECT id, batch_id, email, nama_lengkap as name, role, status FROM member WHERE email = ? AND password = ?', [data.email, data.password]);
     if (!users || users.length === 0) {
       return NextResponse.json({ success: false, error: "Email atau password salah." }, { status: 401 });
     }

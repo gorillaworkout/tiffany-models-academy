@@ -2,9 +2,8 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Secret key rahasia banget, kalau ini bocor orang bisa palsuin sesi login
-// Harusnya taruh di file .env, tapi buat sekarang kita hardcode yang aman 🔐
-const secretKey = 'tiffany-models-academy-top-secret-key-2026';
+// Secret key untuk JWT — diambil dari environment variable, dengan fallback default
+const secretKey = process.env.JWT_SECRET || 'tiffany-models-academy-top-secret-key-2026';
 const key = new TextEncoder().encode(secretKey);
 
 // Bikin tiket login (Token JWT) yang kadaluarsa 7 hari

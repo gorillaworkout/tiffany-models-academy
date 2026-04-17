@@ -28,24 +28,35 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    
-    // TEMPORARY LOGIC: Auto-assign admin if email matches
-    const role = email.toLowerCase() === 'darmawanbayu1@gmail.com' ? 'admin' : 'model';
-    localStorage.setItem('tma_user', JSON.stringify({
-      email: email,
-      fullName: role === 'admin' ? "Bayu Darmawan" : "Model Member",
-      role: role
-    }));
-
-    toast.success(role === 'admin' ? "Welcome back, Director!" : "Login successful!", {
-      description: "Authenticating your credentials...",
-    });
-    
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1000);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      setIsLoading(false);
+      
+      if (!data.success) {
+        toast.error("Login Failed", { description: data.error });
+        return;
+      }
+      
+      localStorage.setItem('tma_user', JSON.stringify({
+        id: data.user.id,
+        batchId: data.user.batch_id,
+        email: data.user.email,
+        fullName: data.user.name,
+        role: data.user.role
+      }));
+      
+      toast.success(data.user.role === 'admin' ? "Welcome back, Director!" : "Login successful!", { description: "Authenticating your credentials..." });
+      setTimeout(() => router.push("/dashboard"), 1000);
+      
+    } catch (e: any) {
+      setIsLoading(false);
+      toast.error("Error", { description: e.message });
+    }
   };
 
   return (
@@ -109,7 +120,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-xs uppercase tracking-widest text-zinc-500">Password</Label>
-                <a href="#" className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
+                <a href="https://wa.me/6285133524900?text=Halo%20Admin%20TMA%2C%20saya%20lupa%20password.%20Email%20saya%3A%20" target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
                   Forgot Password?
                 </a>
               </div>

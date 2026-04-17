@@ -6,13 +6,35 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const batchId = searchParams.get('batchId');
+    const today = searchParams.get('today');
+
+    // Return today's configured sessions across ALL batches
+    if (today === 'true') {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const rows = await d1Query(
+        `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
+                b.name as batchName,
+                s.lat as studioLat, s.lon as studioLon
+         FROM jadwal j
+         LEFT JOIN batch b ON j.batch_id = b.id
+         LEFT JOIN studio s ON j.studio = s.id
+         WHERE j.date = ? AND j.is_configured = 1
+         ORDER BY j.time ASC`,
+        [todayStr]
+      );
+      return NextResponse.json(rows);
+    }
 
     if (!batchId) {
       return NextResponse.json({ error: "Missing batchId parameter" }, { status: 400 });
     }
 
     const rows = await d1Query(
-      'SELECT id, batch_id as batchId, session, title, date, time, studio, trainer, outfit, props, is_configured as isConfigured FROM jadwal WHERE batch_id = ? ORDER BY session ASC', 
+      `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
+              s.lat as studioLat, s.lon as studioLon
+       FROM jadwal j
+       LEFT JOIN studio s ON j.studio = s.id
+       WHERE j.batch_id = ? ORDER BY j.session ASC`, 
       [batchId]
     );
 
@@ -38,13 +60,14 @@ export async function POST(req: Request) {
     for (const slot of slots) {
       const id = `${batchId}-s${slot.session}`;
       await d1Query(`
-        INSERT INTO jadwal (id, batch_id, session, title, date, time, studio, trainer, outfit, props, is_configured)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO jadwal (id, batch_id, session, title, description, date, time, studio, trainer, outfit, props, is_configured)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         id, 
         batchId, 
         slot.session, 
         slot.title || "TBA", 
+        slot.description || "", 
         slot.date || "", 
         slot.time || "", 
         slot.studio || "", 

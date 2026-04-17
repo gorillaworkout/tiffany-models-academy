@@ -4,9 +4,9 @@ import * as schema from './schema';
 // We are migrating to HTTP API approach using D1 HTTP for environments without binding (like PM2 or Vercel)
 // We will build a custom HTTP driver wrapper for Drizzle ORM
 
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || "6f0ac708a5e84619183c932fc262c8b4";
-const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN || "REDACTED_CF_TOKEN";
-const D1_DATABASE_ID = process.env.D1_DATABASE_ID || "8f97c93d-9203-4b78-833b-67d5ac171d37";
+const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || "";
+const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN || "";
+const D1_DATABASE_ID = process.env.D1_DATABASE_ID || "";
 
 class D1HttpDriver {
   async prepare(query: string) {

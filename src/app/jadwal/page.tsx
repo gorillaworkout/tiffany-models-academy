@@ -5,64 +5,81 @@ import { Calendar as CalendarIcon, Clock, MapPin, User, ArrowLeft, CheckCircle2,
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Raw Curriculum Data (Without hardcoded status)
-const rawSyllabus = [
-  { session: 1, title: "Introduction & Posture Assessment", rawDate: "2026-03-29", time: "14:00 - 16:00", studio: "Studio A", trainer: "Nadira Tiffanny", description: "Welcome to TMA! This first session focuses on evaluating your natural posture, walking habits, and setting baseline goals for the next 15 weeks.", outfit: "Casual Form-Fitting (Black/White), Flat Shoes", props: "Water bottle, Notebook & Pen" },
-  { session: 2, title: "Basic Catwalk Mechanics", rawDate: "2026-04-05", time: "14:00 - 16:00", studio: "Studio A", trainer: "Coach Sarah", description: "Learning the core foundation of a professional runway walk. Focusing on foot placement, hip movement, and arm swing.", outfit: "TMA Shirt, Leggings/Skinny Jeans, Heels (Min 7cm)", props: "None" },
-  { session: 3, title: "Photo Posing Fundamentals", rawDate: "2026-04-12", time: "14:00 - 16:00", studio: "Photo Studio B", trainer: "Coach Michael", description: "Understanding body angles, lighting, and how to find your 'best side' in front of a professional camera setup.", outfit: "All Black Attire (Tank top & Jeans), Heels", props: "Handbag / Shoulder bag, Sunglasses" },
-  { session: 4, title: "Facial Expressions & Eye Contact", rawDate: "2026-04-19", time: "14:00 - 16:00", studio: "Studio C", trainer: "Coach Dina", description: "Mastering the 'smize' (smiling with your eyes) and conveying different emotions/moods without relying on body movement.", outfit: "TMA Shirt, Jeans", props: "Personal Makeup Pouch, Small Hand Mirror, Perfume" },
-  { session: 5, title: "Advanced Runway Techniques", rawDate: "2026-04-26", time: "14:00 - 16:00", studio: "Main Hall", trainer: "Nadira Tiffanny", description: "Pacing, half-turns, full-turns, and how to command the stage presence with advanced walking techniques.", outfit: "TMA Shirt, Leggings, Stiletto Heels (Min 9cm)", props: "Jacket / Blazer (for removing while walking)" },
-  { session: 6, title: "Commercial Acting & Video Shoot", rawDate: "2026-05-03", time: "14:00 - 16:00", studio: "Studio B", trainer: "Coach Budi", description: "Transitioning from still photos to moving pictures. Learning how to act naturally for TV commercials and social media campaigns.", outfit: "Casual Bright Colors (No patterns/logos)", props: "Favorite snack/drink (for acting props)" },
-  ...Array.from({length: 10}).map((_, i) => {
-    const d = new Date("2026-05-03");
-    d.setDate(d.getDate() + ((i + 1) * 7));
-    return {
-      session: i + 7, title: `Curriculum Module ${i + 7}`, rawDate: d.toISOString().split('T')[0], time: "14:00 - 16:00", studio: "TBD", trainer: "TMA Coach",
-      description: "Detailed syllabus will be unlocked closer to the date.", outfit: "TMA Shirt, Jeans, Heels", props: "TBA"
-    }
-  })
-];
-
 export default function JadwalPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [userName, setUserName] = useState("Model");
-  const [userBatch, setUserBatch] = useState("Batch 1 • Jakarta Selatan");
+  const [userBatch, setUserBatch] = useState("Loading...");
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [processedSyllabus, setProcessedSyllabus] = useState<any[]>([]);
+  const [batchId, setBatchId] = useState<string>("");
 
   useEffect(() => {
     const savedUser = localStorage.getItem("tma_user");
+    let parsed: any = null;
     if (savedUser) {
-      const parsed = JSON.parse(savedUser);
+      parsed = JSON.parse(savedUser);
       setUserName(parsed.fullName.split(' ')[0]);
+      if (parsed.batchId) {
+        setBatchId(parsed.batchId);
+        // Fetch batch name
+        fetch('/api/batches')
+          .then(r => r.json())
+          .then(batchData => {
+            if (Array.isArray(batchData)) {
+              const myBatch = batchData.find(b => b.id == parsed.batchId);
+              if (myBatch) {
+                setUserBatch(`${myBatch.name} • ${myBatch.branch || ''}`);
+              }
+            }
+          });
+      }
     }
     
-    // AUTOMATIC STATUS LOGIC
-    const now = new Date();
-    let nextAssigned = false;
-    
-    const calculated = rawSyllabus.map(session => {
-      // Calculate end time of the class
-      const endTimeStr = session.time.split(" - ")[1]; 
-      const sessionDate = new Date(`${session.rawDate}T${endTimeStr}:00`);
-      
-      let status = "upcoming";
-      if (sessionDate < now) {
-        status = "completed"; // Class is in the past
-      } else {
-        if (!nextAssigned) {
-          status = "next"; // First class in the future
-          nextAssigned = true;
-        }
-      }
-      
-      const displayDate = new Date(session.rawDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' });
-      
-      return { ...session, status, displayDate };
-    });
-    
-    setProcessedSyllabus(calculated);
-    setIsMounted(true);
+    // Fetch schedule from API
+    if (parsed && parsed.batchId) {
+      fetch(`/api/jadwal?batchId=${parsed.batchId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const now = new Date();
+            let nextAssigned = false;
+            
+            const calculated = data.map(session => {
+              const timeStr = session.time || "00:00 - 00:00";
+              const endTimeStr = timeStr.split(" - ")[1] || "23:59"; 
+              const sessionDateStr = session.date || "2099-12-31";
+              const sessionDate = new Date(`${sessionDateStr}T${endTimeStr}:00`);
+              
+              let status = "upcoming";
+              if (sessionDate < now && session.date !== "") {
+                status = "completed"; 
+              } else if (session.date !== "") {
+                if (!nextAssigned) {
+                  status = "next"; 
+                  nextAssigned = true;
+                }
+              }
+              
+              const displayDate = session.date ? new Date(session.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }) : "TBA";
+              
+              return { 
+                ...session, 
+                rawDate: session.date,
+                status: !session.isConfigured ? "upcoming" : status, 
+                displayDate 
+              };
+            });
+            setProcessedSyllabus(calculated);
+          }
+          setIsMounted(true);
+        })
+        .catch(e => {
+          console.error(e);
+          setIsMounted(true);
+        });
+    } else {
+       setIsMounted(true);
+    }
     
     if (selectedSession) {
       document.body.style.overflow = 'hidden';
@@ -185,10 +202,10 @@ export default function JadwalPage() {
                     <Clock className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.time}
                   </div>
                   <div className="flex items-center text-xs text-zinc-400">
-                    <MapPin className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.studio}
+                    <MapPin className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.studio || 'TBA'}
                   </div>
                   <div className="flex items-center text-xs text-zinc-400">
-                    <User className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.trainer}
+                    <User className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.trainer || 'TBA'}
                   </div>
                 </div>
 
@@ -251,8 +268,8 @@ export default function JadwalPage() {
                 <div className="flex flex-wrap gap-y-3 gap-x-6 text-xs text-zinc-400">
                   <div className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-zinc-500" /> {selectedSession.displayDate}</div>
                   <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-zinc-500" /> {selectedSession.time}</div>
-                  <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-zinc-500" /> {selectedSession.studio}</div>
-                  <div className="flex items-center gap-2"><User className="w-4 h-4 text-zinc-500" /> {selectedSession.trainer}</div>
+                  <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-zinc-500" /> {selectedSession.studio || 'TBA'}</div>
+                  <div className="flex items-center gap-2"><User className="w-4 h-4 text-zinc-500" /> {selectedSession.trainer || 'TBA'}</div>
                 </div>
               </div>
 

@@ -6,143 +6,63 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-const modules = [
-  {
-    id: "01",
-    title: "Introduction & Posture Assessment",
-    description: "Pemahaman dasar tentang industri modeling (Commercial vs High-Fashion). Sesi ini juga mencakup pengecekan postur tubuh alami, cara berdiri yang benar, dan perbaikan kebiasaan membungkuk.",
-    category: "Theory & Practice",
-    status: "completed",
-    icon: BookText
-  },
-  {
-    id: "02",
-    title: "Basic Catwalk Mechanics",
-    description: "Mempelajari pondasi utama dari runway walk. Fokus pada penempatan kaki (walking on a straight line), ayunan pinggul yang proporsional, dan sinkronisasi ayunan lengan.",
-    category: "Runway Practice",
-    status: "completed",
-    icon: Scissors
-  },
-  {
-    id: "03",
-    title: "Catwalk Variations & Tempo",
-    description: "Melatih berjalan dengan berbagai ketukan musik (up-beat vs slow tempo). Mempelajari teknik berhenti (posing at the end of the runway) dan putaran dasar.",
-    category: "Runway Practice",
-    status: "completed",
-    icon: Scissors
-  },
-  {
-    id: "04",
-    title: "Introduction to Photo Posing",
-    description: "Memahami angle wajah dan tubuh. Belajar bagaimana menemukan 'best side' (sisi terbaik) di depan kamera dan memahami arahan dasar dari fotografer.",
-    category: "Photography",
-    status: "active",
-    icon: Camera
-  },
-  {
-    id: "05",
-    title: "Facial Expressions & Eye Contact",
-    description: "Menguasai teknik 'Smize' (tersenyum dengan mata). Latihan menyampaikan berbagai emosi (fierce, elegant, cheerful, mysterious) hanya melalui ekspresi wajah tanpa gerakan tubuh berlebih.",
-    category: "Photography",
-    status: "locked",
-    icon: Camera
-  },
-  {
-    id: "06",
-    title: "Advanced Runway Techniques",
-    description: "Teknik tingkat lanjut di atas catwalk. Mempelajari half-turns, full-turns, dan cara elegan melepas outer (jaket/blazer) saat sedang berjalan di runway.",
-    category: "Runway Practice",
-    status: "locked",
-    icon: Scissors
-  },
-  {
-    id: "07",
-    title: "Commercial vs High-Fashion Posing",
-    description: "Membedakan gaya pose untuk katalog/komersial (lebih natural, senyum, dinamis) dengan pose untuk editorial/high-fashion (avant-garde, kaku, fierce, menciptakan bentuk geometris).",
-    category: "Photography",
-    status: "locked",
-    icon: Camera
-  },
-  {
-    id: "08",
-    title: "Mid-Term Evaluation",
-    description: "Evaluasi pertengahan semester. Setiap model akan dinilai perkembangannya dalam catwalk dan basic posing untuk melihat area mana yang perlu ditingkatkan.",
-    category: "Evaluation",
-    status: "locked",
-    icon: ClipboardList
-  },
-  {
-    id: "09",
-    title: "Working with Props and Garments",
-    description: "Latihan berjalan dan berpose menggunakan aksesoris. Bagaimana mempresentasikan tas (handbag/shoulder bag), kacamata, dan gaun panjang (flowy dresses) agar produk terlihat maksimal.",
-    category: "Runway Practice",
-    status: "locked",
-    icon: Scissors
-  },
-  {
-    id: "10",
-    title: "Runway Choreography",
-    description: "Latihan berjalan secara berpasangan atau berkelompok. Memahami formasi runway, timing keluar-masuk stage, dan menjaga jarak antar model.",
-    category: "Runway Practice",
-    status: "locked",
-    icon: Scissors
-  },
-  {
-    id: "11",
-    title: "Skincare, Grooming & Basic Makeup",
-    description: "Panduan merawat kulit dan rambut ala model profesional. Latihan mengaplikasikan 'no-makeup makeup look' yang wajib digunakan saat menghadiri casting agency.",
-    category: "Theory & Practice",
-    status: "locked",
-    icon: BookText
-  },
-  {
-    id: "12",
-    title: "Personal Branding & Social Media",
-    description: "Cara membangun citra diri sebagai model di era digital. Tips mengatur feed Instagram agar terlihat seperti portofolio profesional yang menarik klien dan fotografer.",
-    category: "Theory",
-    status: "locked",
-    icon: BookText
-  },
-  {
-    id: "13",
-    title: "The Casting Process & Etiquette",
-    description: "Simulasi casting. Membahas apa yang harus dipakai (casting uniform), cara memperkenalkan diri, etika saat bertemu klien, dan cara menghadapi penolakan secara profesional.",
-    category: "Theory & Practice",
-    status: "locked",
-    icon: ClipboardList
-  },
-  {
-    id: "14",
-    title: "Building a Comp Card & Portfolio",
-    description: "Panduan menyusun Composite Card (Comp Card) yang menjadi 'KTP' seorang model. Memilih foto terbaik dan mencantumkan ukuran tubuh (measurements) yang akurat.",
-    category: "Photography",
-    status: "locked",
-    icon: Camera
-  },
-  {
-    id: "15",
-    title: "Agency Contracts & Professional Ethics",
-    description: "Memahami perbedaan Mother Agency dan Booking Agency. Belajar membaca kontrak dasar, sistem komisi, dan standar etika profesional saat bekerja di lokasi (on-set).",
-    category: "Theory",
-    status: "locked",
-    icon: BookText
-  },
-  {
-    id: "16",
-    title: "Final Assessment & Graduation Runway",
-    description: "Ujian akhir! Simulasi fashion show sungguhan dan final test shoot. Model yang lulus akan mendapatkan sertifikat dan portofolio resmi dari Tiffany Models Academy.",
-    category: "Evaluation",
-    status: "locked",
-    icon: GraduationCap
-  }
-];
-
 export default function ModulPage() {
-  const [isMounted, setIsMounted] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    const [modules, setModules] = useState<any[]>([]);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    useEffect(() => {
+      const savedUser = localStorage.getItem("tma_user");
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        if (parsed.batchId) {
+          // Fetch jadwal and student's attendance in parallel
+          Promise.all([
+            fetch(`/api/jadwal?batchId=${parsed.batchId}`).then(r => r.json()),
+            parsed.id ? fetch(`/api/attendance?memberId=${parsed.id}&batchId=${parsed.batchId}`).then(r => r.json()).catch(() => []) : Promise.resolve([])
+          ]).then(([jadwalData, attendanceData]) => {
+              if (Array.isArray(jadwalData)) {
+                 // Build a set of jadwal IDs the student has attended
+                 const attendedJadwalIds = new Set<string>();
+                 if (Array.isArray(attendanceData)) {
+                   attendanceData.forEach((a: any) => {
+                     if (a.jadwal_id || a.jadwalId) attendedJadwalIds.add(a.jadwal_id || a.jadwalId);
+                   });
+                 }
+
+                 let foundNext = false;
+                 const mapped = jadwalData.map((d: any, i: number) => {
+                   let status = "locked";
+                   const attended = attendedJadwalIds.has(d.id);
+                   
+                   if (attended) {
+                     status = "completed";
+                   } else if (d.isConfigured && !foundNext) {
+                     status = "active";
+                     foundNext = true;
+                   } else if (d.isConfigured) {
+                     status = "active";
+                   }
+
+                   return {
+                   id: `0${i+1}`.slice(-2),
+                   title: d.title,
+                   description: d.description || "No description available yet.",
+                   category: "Theory & Practice",
+                   status,
+                   icon: BookText
+                 }});
+                 setModules(mapped);
+              }
+              setIsMounted(true);
+            })
+            .catch(() => setIsMounted(true));
+        } else {
+           setIsMounted(true);
+        }
+      } else {
+        setIsMounted(true);
+      }
+    }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -159,7 +79,7 @@ export default function ModulPage() {
 
   if (!isMounted) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="text-white font-serif italic tracking-widest animate-pulse">TMA</div></div>;
 
-  const completedCount = modules.filter(m => m.status === 'completed').length;
+  const completedCount = modules?.filter((m: any) => m.status === 'completed').length || 0;
   const progressPercent = Math.round((completedCount / 16) * 100);
 
   return (
@@ -207,7 +127,7 @@ export default function ModulPage() {
         <div className="bg-zinc-950 border border-white/5 rounded-none p-2 sm:p-6 md:p-8">
           {/* @ts-ignore */}
           <Accordion type="single" collapsible className="w-full space-y-4">
-            {modules.map((module) => (
+            {(modules || []).map((module: any) => (
               <AccordionItem 
                 key={module.id} 
                 value={module.id} 

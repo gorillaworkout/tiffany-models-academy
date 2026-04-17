@@ -1,0 +1,1 @@
+ALTER TABLE batch ADD COLUMN coach_id TEXT DEFAULT '';

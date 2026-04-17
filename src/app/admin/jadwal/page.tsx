@@ -13,19 +13,8 @@ export default function AdminJadwalPage() {
   const [activeTab, setActiveTab] = useState("curriculum");
   const [editingSession, setEditingSession] = useState<any>(null); // State for Edit Modal
 
-  // Dummy Global Data for Locations & Coaches
+  // Global Data for Locations & Coaches
   const [studios, setStudios] = useState<any[]>([]);
-  
-  // Fetch initial data
-  
-  useEffect(() => {
-    fetch('/api/studios').then(r => r.json()).then(data => {
-      if(Array.isArray(data)) setStudios(data);
-    });
-    fetch('/api/coaches').then(r => r.json()).then(data => {
-      if(Array.isArray(data)) setCoaches(data.map((c:any) => c.name));
-    });
-  }, []);
   
   const [isEditingStudio, setIsEditingStudio] = useState<any>(null);
   const [isEditingCoach, setIsEditingCoach] = useState<any>(null);
@@ -45,35 +34,40 @@ export default function AdminJadwalPage() {
     }
   }, [batches, selectedBatch]);
   const [curriculumSlots, setCurriculumSlots] = useState<any[]>([]);
+  const [copySourceBatch, setCopySourceBatch] = useState("");
 
-  // Function to load slots from API or generate dummy if empty
+  const handleCopyCurriculum = async () => {
+    if (!copySourceBatch) return;
+    const tid = toast.loading("Copying curriculum...");
+    try {
+      const res = await fetch(`/api/jadwal?batchId=${copySourceBatch}`);
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0 && data.some((d:any) => d.isConfigured === 1)) {
+        setCurriculumSlots(data.map((d:any) => ({...d, isConfigured: d.isConfigured === 1})));
+        toast.success("Copied!", { id: tid, description: "Review dates and click Publish Curriculum." });
+        setCopySourceBatch("");
+      } else {
+        toast.error("Source is empty", { id: tid, description: "No configured curriculum found." });
+      }
+    } catch(e) { toast.error("Error", { id: tid }); }
+  };
+
   const fetchCurriculum = (batchId: string) => {
     fetch(`/api/jadwal?batchId=${batchId}`).then(r => r.json()).then(data => {
       if (Array.isArray(data) && data.length > 0) {
-        // Map db boolean format back to frontend
-        setCurriculumSlots(data.map(d => ({...d, isConfigured: d.isConfigured === 1})));
+        setCurriculumSlots(data.map((d:any) => ({...d, isConfigured: d.isConfigured === 1})));
       } else {
-        // Generate blank slate 16 slots if this batch is new
         setCurriculumSlots(Array.from({ length: 16 }, (_, i) => ({
-          session: i + 1,
-          title: i === 0 ? "Introduction & Posture Assessment" : `Curriculum Topic ${i + 1}`,
-          date: "",
-          time: "14:00 - 16:00",
-          studio: "",
-          trainer: "",
-          outfit: "TBA",
-          props: "TBA",
-          isConfigured: false
+          session: i + 1, title: i === 0 ? "Introduction & Posture Assessment" : `Session ${i + 1}`,
+          description: "", date: "", time: "14:00 - 16:00", studio: "", trainer: "",
+          outfit: "TBA", props: "TBA", isConfigured: false
         })));
       }
     });
   };
 
-  useEffect(() => {
-    if (selectedBatch) {
-      fetchCurriculum(selectedBatch);
-    }
-  }, [selectedBatch]);
+  useEffect(() => { if (selectedBatch) fetchCurriculum(selectedBatch); }, [selectedBatch]);
+
 
   // Batches Data
   
@@ -81,30 +75,41 @@ export default function AdminJadwalPage() {
   useEffect(() => {
     fetch('/api/batches').then(r => r.json()).then(data => {
       if(Array.isArray(data)) {
-         // Also append dummy student count (temporarily 0 for now as no registrations)
-         setBatches(data.map((b: any) => ({...b, totalStudents: 0})));
+         setBatches(data);
       }
+    });
+    // Fetch studios and coaches on mount
+    fetch('/api/studios').then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setStudios(data);
+    });
+    fetch('/api/coaches').then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setCoaches(data.map((c: any) => c.name || c.id));
     });
   }, []);
 
   // Fetch registered models dynamically for the selected batch
   const [registeredModels, setRegisteredModels] = useState<any[]>([]);
+  const [batchAttendance, setBatchAttendance] = useState<any[]>([]);
 
   useEffect(() => {
     if (viewingBatch) {
       // Fetch models for this specific batch
       fetch('/api/users').then(r => r.json()).then(data => {
         if (Array.isArray(data)) {
-           // We'll need to filter users by batch, but since our current /api/users doesn't include batch_id in the SELECT, 
-           // we need to update /api/users first. For now, let's filter if batchId is returned, or just show approved users.
-           // To be safe, we will just set them to registeredModels
-           setRegisteredModels(data.filter(u => u.status === 'approved' && u.role === 'student' && u.batch_id == viewingBatch.id));
+           setRegisteredModels(data.filter(u => u.status === 'approved' && u.role === 'student' && u.batch_id == viewingBatch.id).map(m => ({
+             ...m,
+             attendance: `${Math.round((m.attended_count / 16) * 100)}%`
+           })));
+        }
+      });
+      // Fetch attendance summary for this batch
+      fetch(`/api/attendance?batchId=${viewingBatch.id}`).then(r => r.json()).then(data => {
+        if (Array.isArray(data)) {
+          setBatchAttendance(data);
         }
       });
     }
   }, [viewingBatch]);
-
-  const dummyAttendance: any[] = [];
 
   const handleSaveSession = (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,8 +220,18 @@ export default function AdminJadwalPage() {
                 )}
               </select>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] uppercase tracking-widest font-bold border border-emerald-500/20">
-              Active Session
+            <div className="flex items-center gap-3">
+              <select value={copySourceBatch} onChange={(e) => setCopySourceBatch(e.target.value)}
+                className="bg-black border border-white/10 text-zinc-400 px-3 py-2 text-xs">
+                <option value="">Copy from...</option>
+                {batches.filter((b:any) => b.id !== selectedBatch).map((b:any) => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+              <button type="button" onClick={handleCopyCurriculum} disabled={!copySourceBatch}
+                className="px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-[10px] uppercase tracking-widest font-bold transition-colors disabled:opacity-50 border border-amber-500/20">
+                Copy Template
+              </button>
             </div>
           </div>
 
@@ -258,12 +273,8 @@ export default function AdminJadwalPage() {
                     <span className="text-xs text-zinc-400">{slot.date ? `${slot.date} • ${slot.time}` : 'TBD'}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold">Location</span>
-                    <span className="text-xs text-zinc-400">{slot.studio}</span>
-                  </div>
-                  <div className="flex flex-col gap-1 col-span-2">
-                    <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold">Lead Trainer</span>
-                    <span className="text-xs text-zinc-400">{slot.trainer}</span>
+                    <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold">Outfit</span>
+                    <span className="text-xs text-zinc-400">{slot.outfit || 'TBA'}</span>
                   </div>
                 </div>
 
@@ -365,7 +376,7 @@ export default function AdminJadwalPage() {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-serif">Academy Batches</h3>
               <button 
-                onClick={() => setIsAddingBatch({ name: "", branch: studios.length > 0 ? studios[0].id : "", status: "Registration", maxStudents: 30 })}
+                onClick={() => setIsAddingBatch({ name: "", branch: studios.length > 0 ? studios[0].id : "", coachId: "", status: "Registration", maxStudents: 30 })}
                 className="flex items-center gap-2 px-6 py-2 bg-white text-black hover:bg-zinc-200 text-[10px] uppercase tracking-widest font-bold transition-all"
               >
                 <Plus className="w-4 h-4" /> Add New Batch
@@ -377,6 +388,7 @@ export default function AdminJadwalPage() {
                   <tr>
                     <th className="px-6 py-5 font-bold">Batch Name</th>
                     <th className="px-6 py-5 font-bold">Branch Location</th>
+                    <th className="px-6 py-5 font-bold">Coach</th>
                     <th className="px-6 py-5 font-bold">Enrolled / Max</th>
                     <th className="px-6 py-5 font-bold">Status</th>
                     <th className="px-6 py-5 font-bold text-right">Actions</th>
@@ -387,6 +399,7 @@ export default function AdminJadwalPage() {
                     <tr key={batch.id} className="hover:bg-zinc-900/20 transition-colors">
                       <td className="px-6 py-5 font-medium text-white">{batch.name}</td>
                       <td className="px-6 py-5">{batch.branch}</td>
+                      <td className="px-6 py-5">{batch.coachId || '—'}</td>
                       <td className="px-6 py-5">
                         <span className={batch.totalStudents >= (batch.maxStudents || 30) ? "text-amber-400 font-medium" : "text-white"}>
                           {batch.totalStudents} / {batch.maxStudents || 30}
@@ -443,7 +456,7 @@ export default function AdminJadwalPage() {
                     <ArrowLeft className="w-3 h-3" /> Back to Batches List
                   </button>
                   <h2 className="text-3xl font-serif mb-1">{viewingBatch.name}</h2>
-                  <p className="text-sm text-zinc-400">{viewingBatch.branch} • {viewingBatch.totalStudents} Active Models Enrolled</p>
+                  <p className="text-sm text-zinc-400">{viewingBatch.branch} • {viewingBatch.coachId || 'No Coach'} • {viewingBatch.totalStudents} Active Models Enrolled</p>
                 </div>
                 <div className="flex gap-3">
                   <button className="px-6 py-3 bg-white text-black text-[10px] uppercase tracking-widest font-bold hover:bg-zinc-200 transition-colors">
@@ -484,7 +497,7 @@ export default function AdminJadwalPage() {
                 <div className="bg-zinc-950 border border-white/5 p-6">
                   <h3 className="text-xl font-serif mb-6">Attendance Summary</h3>
                   <div className="space-y-4">
-                    {dummyAttendance.map((a, i) => (
+                    {batchAttendance.map((a, i) => (
                       <div key={i} className="p-5 border border-white/5 bg-black relative overflow-hidden group">
                         <div className="flex justify-between items-start mb-4">
                           <div>
@@ -558,12 +571,16 @@ export default function AdminJadwalPage() {
                   
                   <div className="space-y-2">
                     <Label className="text-[10px] uppercase tracking-widest text-zinc-500">Class Title / Module Name</Label>
-                    <Input 
-                      required
-                      value={editingSession.title}
+                    <Input required value={editingSession.title}
                       onChange={(e) => setEditingSession({...editingSession, title: e.target.value})}
-                      className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus-visible:ring-1 focus-visible:ring-blue-500 text-white"
-                    />
+                      className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus-visible:ring-1 focus-visible:ring-blue-500 text-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] uppercase tracking-widest text-zinc-500">Curriculum Details / Description</Label>
+                    <textarea value={editingSession.description || ""}
+                      onChange={(e) => setEditingSession({...editingSession, description: e.target.value})}
+                      placeholder="What will the models learn in this session?"
+                      className="w-full bg-zinc-900/50 border border-white/10 p-3 min-h-[100px] text-sm text-white focus:outline-none focus:border-blue-500/50 resize-y rounded-none" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -586,50 +603,6 @@ export default function AdminJadwalPage() {
                         className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus-visible:ring-1 focus-visible:ring-blue-500 text-white"
                       />
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    
-                    {/* STUDIO DROPDOWN */}
-                    <div className="space-y-2">
-                      <Label className="text-[10px] uppercase tracking-widest text-zinc-500">Studio / Location</Label>
-                      <Select 
-                        value={editingSession.studio} 
-                        onValueChange={(val) => setEditingSession({...editingSession, studio: val})}
-                      >
-                        <SelectTrigger className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus:ring-1 focus:ring-blue-500 text-sm text-white">
-                          <SelectValue placeholder="Select Location" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-none z-[110]">
-                          {studios.map(s => (
-                            <SelectItem key={s.id} value={s.id} className="focus:bg-white/10 focus:text-white cursor-pointer">
-                              {s.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    {/* COACH DROPDOWN */}
-                    <div className="space-y-2">
-                      <Label className="text-[10px] uppercase tracking-widest text-zinc-500">Lead Trainer / Coach</Label>
-                      <Select 
-                        value={editingSession.trainer} 
-                        onValueChange={(val) => setEditingSession({...editingSession, trainer: val})}
-                      >
-                        <SelectTrigger className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus:ring-1 focus:ring-blue-500 text-sm text-white">
-                          <SelectValue placeholder="Select Coach" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-none max-h-[200px] z-[110]">
-                          {coaches.map(c => (
-                            <SelectItem key={c} value={c} className="focus:bg-white/10 focus:text-white cursor-pointer">
-                              {c}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
@@ -708,6 +681,19 @@ export default function AdminJadwalPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <Label>Assigned Coach</Label>
+                  <Select value={isAddingBatch.coachId || ""} onValueChange={(val) => setIsAddingBatch({...isAddingBatch, coachId: val})}>
+                    <SelectTrigger className="bg-black border-white/10 text-white mt-1">
+                      <SelectValue placeholder="Select Coach" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                      {coaches.map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Max Models</Label>
@@ -744,6 +730,7 @@ export default function AdminJadwalPage() {
                       id: isAddingBatch.id || Date.now().toString(),
                       name: isAddingBatch.name,
                       branch: isAddingBatch.branch || (studios.length > 0 ? studios[0].id : ""),
+                      coachId: isAddingBatch.coachId || "",
                       status: isAddingBatch.status,
                       maxStudents: isAddingBatch.maxStudents
                     };
