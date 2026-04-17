@@ -15,11 +15,17 @@ export async function POST(req: Request) {
     // Admin gets auto-approved, students are pending
     const status = role === 'admin' ? 'approved' : 'pending';
 
+    const batchId = data.batch || null;
+    
+    if (!batchId && role === 'student') {
+      return NextResponse.json({ success: false, error: "Silakan pilih batch terlebih dahulu." }, { status: 400 });
+    }
+
     await d1Query(`
       INSERT INTO member (batch_id, nama_lengkap, email, password, no_whatsapp, instagram, tinggi_badan, berat_badan, role, status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
-      data.batch || 0, 
+      batchId || '', 
       data.fullName || data.name, 
       data.email, 
       data.password, 

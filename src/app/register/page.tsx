@@ -50,6 +50,16 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.branch) {
+      toast.error("Please select a branch location");
+      return;
+    }
+    if (!formData.batch) {
+      toast.error("Please select a batch");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
