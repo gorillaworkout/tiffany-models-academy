@@ -1,54 +1,107 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Link from 'next/link';
+import { ArrowRight, ChevronRight, Camera } from 'lucide-react';
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center py-12">
-      <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl mb-6">
-        Start Your Journey With <span className="text-primary">Tiffany Models</span>
-      </h1>
-      <p className="mt-4 text-xl text-gray-600 max-w-2xl mb-10">
-        The premier academy for aspiring models. Learn professional runway walking, 
-        photo posing, and everything you need to succeed in the fashion industry.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Button asChild size="lg" className="text-lg px-8">
-          <Link href="/register">Register Now</Link>
-        </Button>
-        <Button asChild variant="outline" size="lg" className="text-lg px-8">
-          <Link href="/login">Member Login</Link>
-        </Button>
-      </div>
-      
-      <div className="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-3 max-w-5xl w-full">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">16 Comprehensive Modules</h3>
-          <p className="text-gray-600">From basic posture to advanced runway techniques and editorial posing.</p>
+    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black font-sans">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 w-full z-50 p-6 md:px-12 flex justify-between items-center mix-blend-difference">
+        <div className="flex flex-col">
+          <span className="font-serif italic tracking-widest text-2xl">TMA</span>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Flexible Schedules</h3>
-          <p className="text-gray-600">Weekly training schedules across multiple branches to fit your availability.</p>
+        <div className="flex items-center gap-6">
+          <a href="https://www.instagram.com/tiffannymodelsacademy/" target="_blank" className="text-zinc-400 hover:text-white transition-colors">
+            <Camera className="w-5 h-5" />
+          </a>
+          <Link href="/login" className="text-xs uppercase tracking-widest font-bold hover:text-zinc-400 transition-colors hidden md:block">
+            Member Login
+          </Link>
+          <Link href="/register" className="px-5 py-2.5 bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-widest font-bold rounded-none transition-all">
+            Join Academy
+          </Link>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-            </svg>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Grid */}
+        <div className="absolute inset-0 grid grid-cols-2 lg:grid-cols-4 h-full w-full z-0 opacity-40">
+          <div className="relative h-full overflow-hidden border-r border-white/5">
+            <img src="/images/tma-magazine.jpg" className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700" alt="TMA Model" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Expert Instructors</h3>
-          <p className="text-gray-600">Learn directly from industry professionals with years of experience.</p>
+          <div className="relative h-full overflow-hidden border-r border-white/5">
+            <img src="/images/tma-sunglasses.jpg" className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700" alt="TMA Model" />
+          </div>
+          <div className="relative h-full overflow-hidden border-r border-white/5 hidden lg:block">
+            <img src="/images/tma-group.jpg" className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700" alt="TMA Group" />
+          </div>
+          <div className="relative h-full overflow-hidden hidden lg:block">
+            <img src="/images/tma-rose.jpg" className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700" alt="TMA Model" />
+          </div>
+          {/* Overlay Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent" />
         </div>
-      </div>
+
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto mt-20">
+          <h2 className="text-xs md:text-sm uppercase tracking-[0.4em] text-zinc-400 mb-6 font-bold">Tiffanny Models Academy</h2>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-medium mb-8 leading-tight">
+            Elevate your <br />
+            <span className="italic text-zinc-500">presence.</span>
+          </h1>
+          <p className="text-sm md:text-base text-zinc-400 leading-relaxed font-light mb-12 max-w-2xl mx-auto">
+            The premier modeling academy in Indonesia. Master the runway, perfect your editorial poses, and build a professional portfolio that demands attention. 
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <Link href="/register" className="w-full sm:w-auto px-8 py-4 bg-white text-black hover:bg-zinc-200 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 group transition-all">
+              Apply for Next Batch <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <a href="https://www.instagram.com/tiffannymodelsacademy/" target="_blank" className="w-full sm:w-auto px-8 py-4 border border-white/20 text-white hover:bg-white/10 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
+              <Camera className="w-4 h-4" /> Follow Our Journey
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-24 px-6 md:px-12 bg-zinc-950 border-t border-white/5 relative">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          <div className="relative">
+            <div className="absolute -inset-4 border border-white/10" />
+            <img src="/images/tma-magazine.jpg" className="w-full h-[600px] object-cover grayscale" alt="Magazine Cover" />
+            <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/80 backdrop-blur-md border border-white/10">
+              <p className="font-serif italic text-xl">"Hijab doesn't cover beauty, it redefines what beauty is."</p>
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500 mt-4">— Founder: Nadira Tiffanny</p>
+            </div>
+          </div>
+          <div>
+            <h2 className="text-3xl md:text-5xl font-serif mb-8">More than just <span className="italic text-zinc-500">walking.</span></h2>
+            <div className="space-y-6 text-zinc-400 font-light leading-relaxed">
+              <p>Tiffanny Models Academy (TMA) is not just about teaching you how to walk. It's about building confidence, character, and the professional mindset required in the modern fashion industry.</p>
+              <p>Our curriculum covers everything from basic catwalk mechanics and photo posing to personal branding and runway makeup.</p>
+              <p>We believe every aspiring model deserves the right foundation to shine, whether on the runway, in editorial magazines, or in commercial campaigns.</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-8 mt-12 pt-12 border-t border-white/10">
+              <div>
+                <p className="text-4xl font-serif mb-2">2</p>
+                <p className="text-xs uppercase tracking-widest text-zinc-500">Active Branches<br/>(Jakarta & Bandung)</p>
+              </div>
+              <div>
+                <p className="text-4xl font-serif mb-2">16+</p>
+                <p className="text-xs uppercase tracking-widest text-zinc-500">Intensive<br/>Training Modules</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 border-t border-white/10 text-center">
+        <p className="text-[10px] uppercase tracking-widest text-zinc-600">
+          © {new Date().getFullYear()} Tiffanny Models Academy. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }

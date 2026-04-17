@@ -1,49 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Geist } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
-const inter = Inter({ subsets: ["latin"] });
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+});
 
 export const metadata: Metadata = {
   title: "Tiffany Models Academy",
-  description: "Academy for aspiring models",
+  description: "Professional modeling academy registration and member portal",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className={inter.className}>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          <header className="bg-white shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between h-16 items-center">
-                <div className="flex-shrink-0">
-                  <a href="/" className="text-2xl font-bold text-gray-900">
-                    Tiffany Models Academy
-                  </a>
-                </div>
-                <nav className="hidden md:flex space-x-8">
-                  <a href="/login" className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                    Login
-                  </a>
-                  <a href="/register" className="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-md text-sm font-medium">
-                    Register
-                  </a>
-                </nav>
-              </div>
-            </div>
-          </header>
-          <main className="flex-1 flex flex-col justify-center">
-            {children}
-          </main>
-        </div>
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="bg-black text-white font-sans antialiased selection:bg-white selection:text-black">
+        {children}
+        <Toaster theme="dark" position="bottom-center" />
       </body>
     </html>
   );

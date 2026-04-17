@@ -11,21 +11,27 @@ export const cabang = sqliteTable("cabang", {
 
 // 2. Tabel Batch (Periode)
 export const batch = sqliteTable("batch", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  cabangId: integer("cabang_id").references(() => cabang.id).notNull(),
-  nama: text("nama").notNull(), // cth: "Batch 1 - 2026"
-  status: text("status").notNull().default("aktif"), // aktif, selesai, pendaftaran
+  id: text("id").primaryKey(), // using text (uuid/timestamp) for easier frontend generation
+  studioId: text("studio_id").notNull(), // points to studio.id
+  name: text("name").notNull(),
+  status: text("status").notNull().default("Registration"),
+  maxStudents: integer("max_students").notNull().default(30),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 3. Tabel Jadwal Latihan per Batch
 export const jadwal = sqliteTable("jadwal", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  batchId: integer("batch_id").references(() => batch.id).notNull(),
-  hari: text("hari").notNull(), // cth: "Minggu"
-  jamMulai: text("jam_mulai").notNull(), // cth: "10:00"
-  jamSelesai: text("jam_selesai").notNull(), // cth: "12:00"
-  materi: text("materi").default("Basic Modeling"),
+  id: text("id").primaryKey(),
+  batchId: text("batch_id").notNull(),
+  session: integer("session").notNull(),
+  title: text("title").notNull(),
+  date: text("date"),
+  time: text("time"),
+  studio: text("studio"),
+  trainer: text("trainer"),
+  outfit: text("outfit"),
+  props: text("props"),
+  isConfigured: integer("is_configured").notNull().default(0),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
@@ -41,5 +47,22 @@ export const member = sqliteTable("member", {
   tinggiBadan: integer("tinggi_badan"), 
   beratBadan: integer("berat_badan"), 
   role: text("role").notNull().default("student"), // student atau admin
+  status: text("status").notNull().default("pending"), // pending, approved, rejected
   tanggalDaftar: text("tanggal_daftar").default(sql`CURRENT_TIMESTAMP`),
+});
+
+// 5. Tabel Studio/Location
+export const studio = sqliteTable("studio", {
+  id: text("id").primaryKey(), // Using text because current dummy uses string IDs like "Noble House, Jakarta"
+  name: text("name").notNull(),
+  lat: text("lat").notNull(), // SQLite can store as text and cast to number
+  lon: text("lon").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+// 6. Tabel Coach
+export const coach = sqliteTable("coach", {
+  id: text("id").primaryKey(), // using the name as id for simplicity like dummy data
+  name: text("name").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
