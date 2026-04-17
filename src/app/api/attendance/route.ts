@@ -26,19 +26,31 @@ export async function GET(req: Request) {
       return NextResponse.json(rows);
     }
     
-    if (batchId) {
+    if (batchId && !memberId) {
        // Fetch attendance summary for a batch for admin view
-       // We get all sessions and count the attendances
        const summary = await d1Query(`
-         SELECT j.session, j.title, j.date, 
+         SELECT j.id as jadwalId, j.session, j.title, j.date, 
                 (SELECT COUNT(*) FROM absensi a WHERE a.jadwal_id = j.id AND a.status = 'hadir') as present,
                 (SELECT COUNT(*) FROM member m WHERE m.batch_id = j.batch_id AND m.status = 'approved' AND m.role = 'student') as total
          FROM jadwal j
          WHERE j.batch_id = ? AND j.is_configured = 1
          ORDER BY j.session ASC
        `, [batchId]);
+
+       // For sessions with absentees, fetch names of who didn't attend
+       const enriched = await Promise.all((summary || []).map(async (s: any) => {
+         if (s.present < s.total && s.present > 0) {
+           const absentees = await d1Query(`
+             SELECT m.nama_lengkap as name FROM member m 
+             WHERE m.batch_id = ? AND m.status = 'approved' AND m.role = 'student'
+             AND m.id NOT IN (SELECT a.member_id FROM absensi a WHERE a.jadwal_id = ? AND a.status = 'hadir')
+           `, [batchId, s.jadwalId]);
+           return { ...s, absentees: (absentees || []).map((a: any) => a.name) };
+         }
+         return { ...s, absentees: [] };
+       }));
        
-       return NextResponse.json(summary);
+       return NextResponse.json(enriched);
     }
     
     if (jadwalId) {

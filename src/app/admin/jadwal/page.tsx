@@ -518,7 +518,7 @@ export default function AdminJadwalPage() {
                         {a.present < a.total && (
                           <div className="mt-4 pt-3 border-t border-dashed border-white/10">
                             <p className="text-[10px] uppercase tracking-widest font-bold text-red-400 mb-1">Absentees:</p>
-                            <p className="text-xs text-zinc-400">Amanda Rawles, Budi Santoso</p>
+                            <p className="text-xs text-zinc-400">{a.absentees && a.absentees.length > 0 ? a.absentees.join(', ') : 'No attendance recorded yet'}</p>
                           </div>
                         )}
                       </div>
