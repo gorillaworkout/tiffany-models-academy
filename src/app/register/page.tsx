@@ -260,8 +260,8 @@ export default function RegisterPage() {
             </div>
 
             <Button 
-              type="submit" disabled={isLoading}
-              className="w-full h-12 mt-4 bg-white text-black hover:bg-zinc-200 rounded-none text-xs tracking-widest flex items-center justify-center gap-2 group transition-all font-bold uppercase"
+              type="submit" disabled={isLoading || !formData.fullName || !formData.email || !formData.password || !formData.whatsapp || !formData.branch || !formData.batch}
+              className="w-full h-12 mt-4 bg-white text-black hover:bg-zinc-200 rounded-none text-xs tracking-widest flex items-center justify-center gap-2 group transition-all font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
