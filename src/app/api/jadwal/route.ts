@@ -8,6 +8,24 @@ export async function GET(req: Request) {
     const batchId = searchParams.get('batchId');
     const today = searchParams.get('today');
 
+    const upcoming = searchParams.get('upcoming');
+
+    // Return next 5 upcoming configured sessions across ALL batches (date > today)
+    if (upcoming === 'true') {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const rows = await d1Query(
+        `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.start_time as startTime, j.end_time as endTime, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
+                b.name as batchName, b.studio_id as batchLocation
+         FROM jadwal j
+         LEFT JOIN batch b ON j.batch_id = b.id
+         WHERE j.date > ? AND j.is_configured = 1
+         ORDER BY j.date ASC, j.start_time ASC
+         LIMIT 5`,
+        [todayStr]
+      );
+      return NextResponse.json(rows);
+    }
+
     // Return today's configured sessions across ALL batches
     if (today === 'true') {
       const todayStr = new Date().toISOString().split('T')[0];

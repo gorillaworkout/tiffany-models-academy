@@ -41,6 +41,13 @@ export default function DashboardPage() {
   });
 
   const [todayClasses, setTodayClasses] = useState<any[]>([]);
+  const [upcomingAdminSessions, setUpcomingAdminSessions] = useState<any[]>([]);
+
+  // Admin filter/search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [batchFilter, setBatchFilter] = useState("all");
+  const [allBatches, setAllBatches] = useState<any[]>([]);
 
   const fetchStats = async () => {
     try {
@@ -68,6 +75,13 @@ export default function DashboardPage() {
           return endTime > nowHHmm;
         });
         setTodayClasses(filtered);
+      }
+
+      // Fetch upcoming sessions for admin sidebar
+      const resUpcoming = await fetch('/api/jadwal?upcoming=true');
+      const upcomingData = await resUpcoming.json();
+      if (Array.isArray(upcomingData)) {
+        setUpcomingAdminSessions(upcomingData);
       }
     } catch (e) {
       console.error(e);
@@ -132,6 +146,10 @@ export default function DashboardPage() {
       if (parsed.role === 'admin') {
          fetchUsers();
          fetchStats();
+         // Fetch batches for filter dropdown
+         fetch('/api/batches').then(r => r.json()).then(data => {
+           if (Array.isArray(data)) setAllBatches(data);
+         });
       } else if (parsed.batchId) {
          // Fetch student status label
          setStudentStats(prev => ({
@@ -506,11 +524,65 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
                 <h3 className="text-xl font-serif">Registrations & Directory</h3>
               </div>
+
+              {/* Filter Bar */}
+              <div className="space-y-3 mb-6">
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <input
+                    type="text"
+                    placeholder="Search by name or email..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full bg-zinc-900 border border-white/5 pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/20 transition-colors"
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Status Filter Pills */}
+                  <div className="flex items-center gap-1">
+                    {["all", "pending", "approved", "rejected"].map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setStatusFilter(s)}
+                        className={`px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold border transition-colors ${
+                          statusFilter === s
+                            ? "bg-white text-black border-white"
+                            : "bg-transparent text-zinc-500 border-white/10 hover:border-white/30 hover:text-zinc-300"
+                        }`}
+                      >
+                        {s === "all" ? "All" : s}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Batch Filter Dropdown */}
+                  <select
+                    value={batchFilter}
+                    onChange={e => setBatchFilter(e.target.value)}
+                    className="bg-zinc-900 border border-white/5 px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-white/20 transition-colors"
+                  >
+                    <option value="all">All Batches</option>
+                    {allBatches.map(b => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div className="space-y-4">
-                {users.length === 0 ? (
-                   <p className="text-sm text-zinc-500 italic text-center py-4">No users registered yet.</p>
-                ) : (
-                   users.map((u: any, i: number) => (
+                {(() => {
+                  const filteredUsers = users.filter((u: any) => {
+                    const matchesSearch = searchQuery === "" ||
+                      (u.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (u.email || "").toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchesStatus = statusFilter === "all" || u.status === statusFilter;
+                    const matchesBatch = batchFilter === "all" || String(u.batch_id) === String(batchFilter);
+                    return matchesSearch && matchesStatus && matchesBatch;
+                  });
+                  if (filteredUsers.length === 0) {
+                    return <p className="text-sm text-zinc-500 italic text-center py-4">No users found.</p>;
+                  }
+                  return filteredUsers.map((u: any, i: number) => (
                     <div
                       key={i}
                       className="flex flex-col gap-4 p-4 bg-black border border-white/5 hover:border-white/10 transition-colors"
@@ -526,6 +598,11 @@ export default function DashboardPage() {
                           <p className="text-xs text-zinc-500 font-mono">
                             {u.email} • WA: {u.whatsapp || "-"}
                           </p>
+                          {u.batchName && (
+                            <p className="text-xs text-zinc-600 mt-1">
+                              {u.batchName}{u.batchLocation ? ` • ${u.batchLocation}` : ''}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center justify-between border-t border-white/5 pt-3">
@@ -565,8 +642,8 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                  ))
-                )}
+                  ));
+                })()}
               </div>
             </div>
           </motion.div>
@@ -605,6 +682,41 @@ export default function DashboardPage() {
                     </div>
                   ))
                 )}
+              </div>
+
+              <div className="p-6 border-t border-white/5">
+                <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-400 mb-4">
+                  Upcoming Schedule
+                </h2>
+                <div className="space-y-6">
+                  {upcomingAdminSessions.length === 0 ? (
+                    <p className="text-sm text-zinc-500 italic text-center py-4">No upcoming sessions.</p>
+                  ) : (
+                    upcomingAdminSessions.slice(0, 2).map((session, idx) => {
+                      const timeDisplay = session.startTime && session.endTime ? `${session.startTime} - ${session.endTime}` : session.time || 'TBD';
+                      const dateLabel = session.date
+                        ? `${new Date(session.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${timeDisplay}`
+                        : `TBA • ${timeDisplay}`;
+                      return (
+                        <div key={session.id} className={`group relative pl-6 border-l ${idx === 0 ? 'border-amber-500/50' : 'border-zinc-800 hover:border-white/30'} transition-colors`}>
+                          <div className={`absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full ${idx === 0 ? 'bg-amber-500 animate-pulse' : 'bg-zinc-800 group-hover:bg-white'} transition-colors`} />
+                          <div className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${idx === 0 ? 'text-amber-500' : 'text-zinc-500'}`}>
+                            {dateLabel}
+                          </div>
+                          <h4 className={`text-lg font-serif mb-1 ${idx === 0 ? 'text-white' : ''}`}>
+                            {session.title}
+                          </h4>
+                          <p className="text-xs text-zinc-500 mb-2">
+                            {session.batchName || "Batch"}
+                          </p>
+                          <div className="flex items-center text-xs text-zinc-400 gap-2">
+                            <MapPin className="w-3 h-3" /> {session.studio || session.batchLocation || 'TBD'}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
 
               <div className="p-6 border-t border-white/5 mt-auto">

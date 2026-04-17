@@ -35,8 +35,11 @@ export async function GET(req: Request) {
       (
         SELECT COUNT(*) FROM absensi a WHERE a.member_id = m.id AND a.status = 'hadir'
       ) as attended_count,
-      16 as total_sessions
-    FROM member m`);
+      16 as total_sessions,
+      b.name as batchName,
+      b.studio_id as batchLocation
+    FROM member m
+    LEFT JOIN batch b ON m.batch_id = b.id`);
     return NextResponse.json(rows);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
