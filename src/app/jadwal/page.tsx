@@ -42,21 +42,27 @@ export default function JadwalPage() {
         .then(data => {
           if (Array.isArray(data)) {
             const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const nowHHmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             let nextAssigned = false;
             
             const calculated = data.map(session => {
-              const timeStr = session.time || "00:00 - 00:00";
-              const endTimeStr = timeStr.split(" - ")[1] || "23:59"; 
+              const startTime = session.startTime || (session.time || "00:00 - 00:00").split(" - ")[0] || "00:00";
+              const endTime = session.endTime || (session.time || "00:00 - 23:59").split(" - ")[1] || "23:59";
               const sessionDateStr = session.date || "2099-12-31";
-              const sessionDate = new Date(`${sessionDateStr}T${endTimeStr}:00`);
+              const timeDisplay = session.startTime && session.endTime ? `${session.startTime} - ${session.endTime}` : session.time || "TBD";
               
               let status = "upcoming";
-              if (sessionDate < now && session.date !== "") {
-                status = "completed"; 
-              } else if (session.date !== "") {
-                if (!nextAssigned) {
-                  status = "next"; 
-                  nextAssigned = true;
+              if (session.date && session.date !== "") {
+                if (sessionDateStr < todayStr) {
+                  status = "completed";
+                } else if (sessionDateStr === todayStr && nowHHmm >= endTime) {
+                  status = "completed";
+                } else {
+                  if (!nextAssigned) {
+                    status = "next"; 
+                    nextAssigned = true;
+                  }
                 }
               }
               
@@ -66,7 +72,8 @@ export default function JadwalPage() {
                 ...session, 
                 rawDate: session.date,
                 status: !session.isConfigured ? "upcoming" : status, 
-                displayDate 
+                displayDate,
+                timeDisplay,
               };
             });
             setProcessedSyllabus(calculated);
@@ -199,7 +206,7 @@ export default function JadwalPage() {
 
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 pt-4 border-t border-white/5 mb-4">
                   <div className="flex items-center text-xs text-zinc-400">
-                    <Clock className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.time}
+                    <Clock className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.timeDisplay || session.time}
                   </div>
                   <div className="flex items-center text-xs text-zinc-400">
                     <MapPin className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.studio || 'TBA'}
@@ -267,7 +274,7 @@ export default function JadwalPage() {
                 
                 <div className="flex flex-wrap gap-y-3 gap-x-6 text-xs text-zinc-400">
                   <div className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-zinc-500" /> {selectedSession.displayDate}</div>
-                  <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-zinc-500" /> {selectedSession.time}</div>
+                  <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-zinc-500" /> {selectedSession.timeDisplay || selectedSession.time}</div>
                   <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-zinc-500" /> {selectedSession.studio || 'TBA'}</div>
                   <div className="flex items-center gap-2"><User className="w-4 h-4 text-zinc-500" /> {selectedSession.trainer || 'TBA'}</div>
                 </div>

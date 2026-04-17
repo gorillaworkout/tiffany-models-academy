@@ -12,14 +12,14 @@ export async function GET(req: Request) {
     if (today === 'true') {
       const todayStr = new Date().toISOString().split('T')[0];
       const rows = await d1Query(
-        `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
+        `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.start_time as startTime, j.end_time as endTime, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
                 b.name as batchName,
                 s.lat as studioLat, s.lon as studioLon
          FROM jadwal j
          LEFT JOIN batch b ON j.batch_id = b.id
          LEFT JOIN studio s ON j.studio = s.id
          WHERE j.date = ? AND j.is_configured = 1
-         ORDER BY j.time ASC`,
+         ORDER BY j.start_time ASC, j.time ASC`,
         [todayStr]
       );
       return NextResponse.json(rows);
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     }
 
     const rows = await d1Query(
-      `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
+      `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.start_time as startTime, j.end_time as endTime, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
               s.lat as studioLat, s.lon as studioLon
        FROM jadwal j
        LEFT JOIN studio s ON j.studio = s.id
@@ -59,9 +59,12 @@ export async function POST(req: Request) {
     // Sequential inserts are fine for this small amount (16 rows)
     for (const slot of slots) {
       const id = `${batchId}-s${slot.session}`;
+      const startTime = slot.startTime || "";
+      const endTime = slot.endTime || "";
+      const time = startTime && endTime ? `${startTime} - ${endTime}` : (slot.time || "");
       await d1Query(`
-        INSERT INTO jadwal (id, batch_id, session, title, description, date, time, studio, trainer, outfit, props, is_configured)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO jadwal (id, batch_id, session, title, description, date, time, start_time, end_time, studio, trainer, outfit, props, is_configured)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         id, 
         batchId, 
@@ -69,7 +72,9 @@ export async function POST(req: Request) {
         slot.title || "TBA", 
         slot.description || "", 
         slot.date || "", 
-        slot.time || "", 
+        time, 
+        startTime, 
+        endTime, 
         slot.studio || "", 
         slot.trainer || "", 
         slot.outfit || "", 

@@ -60,7 +60,14 @@ export default function DashboardPage() {
       const resToday = await fetch('/api/jadwal?today=true');
       const todayData = await resToday.json();
       if (Array.isArray(todayData)) {
-        setTodayClasses(todayData);
+        // Filter: only show classes whose endTime has NOT passed yet (upcoming + in progress)
+        const now = new Date();
+        const nowHHmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const filtered = todayData.filter((cls: any) => {
+          const endTime = cls.endTime || (cls.time || "").split(" - ")[1] || "23:59";
+          return endTime > nowHHmm;
+        });
+        setTodayClasses(filtered);
       }
     } catch (e) {
       console.error(e);
@@ -137,15 +144,20 @@ export default function DashboardPage() {
             .then(r => r.json())
             .then(data => {
                if (Array.isArray(data)) {
-                  const todayStr = new Date().toISOString().split('T')[0];
                   const now = new Date();
+                  const todayStr = new Date(now.getTime()).toISOString().split('T')[0];
+                  const nowHHmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                   const configuredSessions = data.filter(s => s.isConfigured === 1);
                   
-                  // Count completed sessions (past dates)
+                  // Count completed sessions (past dates OR today with endTime passed)
                   const completedCount = configuredSessions.filter(s => {
                     if (!s.date) return false;
-                    const endTimeStr = (s.time || "00:00 - 23:59").split(" - ")[1] || "23:59";
-                    return new Date(`${s.date}T${endTimeStr}:00`) < now;
+                    if (s.date < todayStr) return true;
+                    if (s.date === todayStr) {
+                      const endTime = s.endTime || (s.time || "").split(" - ")[1] || "23:59";
+                      return nowHHmm >= endTime;
+                    }
+                    return false;
                   }).length;
 
                   setStudentStats(prev => ({
@@ -153,16 +165,30 @@ export default function DashboardPage() {
                     modulesLabel: `${completedCount} of ${data.length} Done`,
                   }));
 
-                  // Find next upcoming session
+                  // Find upcoming sessions: date > today, OR date = today with endTime not passed
                   const upcomingConfigured = configuredSessions
-                    .filter(s => s.date && new Date(`${s.date}T00:00:00`) >= new Date(todayStr))
-                    .sort((a, b) => a.date.localeCompare(b.date));
+                    .filter(s => {
+                      if (!s.date) return false;
+                      if (s.date > todayStr) return true;
+                      if (s.date === todayStr) {
+                        const endTime = s.endTime || (s.time || "").split(" - ")[1] || "23:59";
+                        return nowHHmm < endTime;
+                      }
+                      return false;
+                    })
+                    .sort((a, b) => {
+                      const cmp = a.date.localeCompare(b.date);
+                      if (cmp !== 0) return cmp;
+                      const aStart = a.startTime || (a.time || "").split(" - ")[0] || "00:00";
+                      const bStart = b.startTime || (b.time || "").split(" - ")[0] || "00:00";
+                      return aStart.localeCompare(bStart);
+                    });
 
                   if (upcomingConfigured.length > 0) {
                     const nextSession = upcomingConfigured[0];
                     const nextDate = new Date(nextSession.date);
                     const isToday = nextSession.date === todayStr;
-                    const timeStr = nextSession.time ? nextSession.time.split(" - ")[0] : "";
+                    const timeStr = nextSession.startTime || (nextSession.time ? nextSession.time.split(" - ")[0] : "");
                     setStudentStats(prev => ({
                       ...prev,
                       nextSessionLabel: isToday ? `Today, ${timeStr}` : `${nextDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${timeStr}`,
@@ -174,8 +200,12 @@ export default function DashboardPage() {
                   // Set upcoming sessions for sidebar (next 2)
                   setUpcomingSessions(upcomingConfigured.slice(0, 2));
 
-                  // Find today's session for check-in
-                  const sessionToday = data.find(s => s.date === todayStr && s.isConfigured === 1);
+                  // Find today's session for check-in (first one where endTime hasn't passed)
+                  const sessionToday = configuredSessions.find(s => {
+                    if (s.date !== todayStr) return false;
+                    const endTime = s.endTime || (s.time || "").split(" - ")[1] || "23:59";
+                    return nowHHmm < endTime;
+                  });
                   if (sessionToday) {
                      setHasClassToday(true);
                      setTodaySession(sessionToday);
@@ -561,7 +591,7 @@ export default function DashboardPage() {
                     <div key={cls.id} className={`group relative pl-6 border-l ${idx === 0 ? 'border-emerald-500/50' : 'border-zinc-800'}`}>
                       <div className={`absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full ${idx === 0 ? 'bg-emerald-500' : 'bg-zinc-800'}`} />
                       <div className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${idx === 0 ? 'text-emerald-500' : 'text-zinc-500'}`}>
-                        {cls.time || "TBD"}
+                        {cls.startTime && cls.endTime ? `${cls.startTime} - ${cls.endTime}` : cls.time || "TBD"}
                       </div>
                       <h4 className="text-lg font-serif mb-1">
                         {cls.title}
@@ -716,7 +746,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className="text-xl font-serif mb-1">Live Class Check-in</h3>
                 <p className="text-xs text-zinc-400">
-                  Session {todaySession ? String(todaySession.session).padStart(2, '0') : ''}: {todaySession?.title || 'Class'} • Today, {todaySession?.time?.split(' - ')[0] || ''} at {todaySession?.studio || 'Studio'}
+                  Session {todaySession ? String(todaySession.session).padStart(2, '0') : ''}: {todaySession?.title || 'Class'} • Today, {todaySession?.startTime || todaySession?.time?.split(' - ')[0] || ''} at {todaySession?.studio || 'Studio'}
                 </p>
               </div>
             </div>
@@ -883,9 +913,10 @@ export default function DashboardPage() {
                 upcomingSessions.map((session, idx) => {
                   const todayStr = new Date().toISOString().split('T')[0];
                   const isToday = session.date === todayStr;
+                  const timeDisplay = session.startTime && session.endTime ? `${session.startTime} - ${session.endTime}` : session.time || 'TBD';
                   const dateLabel = isToday
-                    ? `Today • ${session.time || 'TBD'}`
-                    : `${session.date ? new Date(session.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'TBA'} • ${session.time || 'TBD'}`;
+                    ? `Today • ${timeDisplay}`
+                    : `${session.date ? new Date(session.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'TBA'} • ${timeDisplay}`;
                   return (
                     <div key={session.id} className={`group relative pl-6 border-l ${idx === 0 ? 'border-amber-500/50' : 'border-zinc-800 hover:border-white/30'} transition-colors`}>
                       <div className={`absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full ${idx === 0 ? 'bg-amber-500 animate-pulse' : 'bg-zinc-800 group-hover:bg-white'} transition-colors`} />

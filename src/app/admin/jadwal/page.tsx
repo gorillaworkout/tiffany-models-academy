@@ -59,7 +59,7 @@ export default function AdminJadwalPage() {
       } else {
         setCurriculumSlots(Array.from({ length: 16 }, (_, i) => ({
           session: i + 1, title: i === 0 ? "Introduction & Posture Assessment" : `Session ${i + 1}`,
-          description: "", date: "", time: "14:00 - 16:00", studio: "", trainer: "",
+          description: "", date: "", time: "14:00 - 16:00", startTime: "14:00", endTime: "16:00", studio: "", trainer: "",
           outfit: "TBA", props: "TBA", isConfigured: false
         })));
       }
@@ -113,8 +113,15 @@ export default function AdminJadwalPage() {
 
   const handleSaveSession = (e: React.FormEvent) => {
     e.preventDefault();
+    const updated = {
+      ...editingSession,
+      isConfigured: true,
+      time: editingSession.startTime && editingSession.endTime 
+        ? `${editingSession.startTime} - ${editingSession.endTime}` 
+        : editingSession.time || "",
+    };
     setCurriculumSlots(slots => 
-      slots.map(s => s.session === editingSession.session ? { ...editingSession, isConfigured: true } : s)
+      slots.map(s => s.session === updated.session ? updated : s)
     );
     setEditingSession(null);
   };
@@ -270,7 +277,7 @@ export default function AdminJadwalPage() {
                 <div className="grid grid-cols-2 gap-y-3 gap-x-4 pt-4 border-t border-white/5">
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold">Date & Time</span>
-                    <span className="text-xs text-zinc-400">{slot.date ? `${slot.date} • ${slot.time}` : 'TBD'}</span>
+                    <span className="text-xs text-zinc-400">{slot.date ? `${slot.date} • ${slot.startTime && slot.endTime ? `${slot.startTime} - ${slot.endTime}` : slot.time || 'TBD'}` : 'TBD'}</span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold">Outfit</span>
@@ -594,14 +601,27 @@ export default function AdminJadwalPage() {
                         className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus-visible:ring-1 focus-visible:ring-blue-500 text-white [&::-webkit-calendar-picker-indicator]:filter-[invert(1)]"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] uppercase tracking-widest text-zinc-500">Time (e.g., 14:00 - 16:00)</Label>
-                      <Input 
-                        required
-                        value={editingSession.time}
-                        onChange={(e) => setEditingSession({...editingSession, time: e.target.value})}
-                        className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus-visible:ring-1 focus-visible:ring-blue-500 text-white"
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] uppercase tracking-widest text-zinc-500">Start Time</Label>
+                        <Input 
+                          type="time"
+                          required
+                          value={editingSession.startTime || ""}
+                          onChange={(e) => setEditingSession({...editingSession, startTime: e.target.value})}
+                          className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus-visible:ring-1 focus-visible:ring-blue-500 text-white"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] uppercase tracking-widest text-zinc-500">End Time</Label>
+                        <Input 
+                          type="time"
+                          required
+                          value={editingSession.endTime || ""}
+                          onChange={(e) => setEditingSession({...editingSession, endTime: e.target.value})}
+                          className="bg-zinc-900/50 border-white/10 h-10 rounded-none focus-visible:ring-1 focus-visible:ring-blue-500 text-white"
+                        />
+                      </div>
                     </div>
                   </div>
 

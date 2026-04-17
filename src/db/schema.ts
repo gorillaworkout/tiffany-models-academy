@@ -29,6 +29,8 @@ export const jadwal = sqliteTable("jadwal", {
   description: text("description"), // New field for detailed curriculum
   date: text("date"),
   time: text("time"),
+  startTime: text("start_time"),
+  endTime: text("end_time"),
   studio: text("studio"),
   trainer: text("trainer"),
   outfit: text("outfit"),
