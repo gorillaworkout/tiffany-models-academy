@@ -131,7 +131,7 @@ export default function DashboardPage() {
     gradeLabel: "—",
   });
   const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
-  const [studioCoords, setStudioCoords] = useState<{lat: number; lon: number; name: string}>({ lat: -6.2280239, lon: 106.825536, name: "Studio" });
+  const [studioCoords, setStudioCoords] = useState<{lat: number; lon: number; name: string}>({ lat: 0, lon: 0, name: "" });
 
   useEffect(() => {
     const savedUser = localStorage.getItem("tma_user");
@@ -867,7 +867,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className="text-xl font-serif mb-1">Live Class Check-in</h3>
                 <p className="text-xs text-zinc-400">
-                  Session {todaySession ? String(todaySession.session).padStart(2, '0') : ''}: {todaySession?.title || 'Class'} • Today, {todaySession?.startTime || todaySession?.time?.split(' - ')[0] || ''} at {todaySession?.studio || 'Studio'}
+                  Session {todaySession ? String(todaySession.session).padStart(2, '0') : ''}: {todaySession?.title || 'Class'} • Today, {todaySession?.startTime || todaySession?.time?.split(' - ')[0] || ''} at {studioCoords.name || todaySession?.studioName || 'Studio'}
                 </p>
               </div>
             </div>
@@ -904,7 +904,7 @@ export default function DashboardPage() {
                 Attendance Verified
               </h3>
               <p className="text-xs text-emerald-500/70">
-                You have successfully checked in for today's session at {todaySession?.studio || 'the studio'}. Have a great training!
+                You have successfully checked in for today's session at {studioCoords.name || todaySession?.studioName || 'the studio'}. Have a great training!
               </p>
             </div>
           </motion.div>
