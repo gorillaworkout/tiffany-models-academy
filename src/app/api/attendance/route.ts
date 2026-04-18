@@ -16,14 +16,49 @@ export async function GET(req: Request) {
     }
 
     if (memberId && batchId) {
-      // Fetch all attendance records for a student in a specific batch
+      // Fetch detailed attendance records for a student in a specific batch
+      // Include session info, check-in time, GPS coords, and studio coords for distance calc
       const rows = await d1Query(`
-        SELECT a.id, a.jadwal_id, a.status, a.check_in_time 
+        SELECT a.id, a.jadwal_id, a.status, a.check_in_time, a.lat as checkLat, a.lon as checkLon,
+               j.session, j.title, j.date, j.start_time as startTime, j.end_time as endTime,
+               s.lat as studioLat, s.lon as studioLon, s.name as studioName
         FROM absensi a 
         INNER JOIN jadwal j ON a.jadwal_id = j.id 
+        LEFT JOIN batch b ON j.batch_id = b.id
+        LEFT JOIN studio s ON b.studio_id = s.id
         WHERE a.member_id = ? AND j.batch_id = ?
+        ORDER BY j.session ASC
       `, [parseInt(memberId), batchId]);
-      return NextResponse.json(rows);
+      
+      // Calculate distance for each check-in
+      const enriched = (rows || []).map((r: any) => {
+        let distance = null;
+        if (r.checkLat && r.checkLon && r.studioLat && r.studioLon) {
+          const toRad = (deg: number) => (deg * Math.PI) / 180;
+          const lat1 = parseFloat(r.checkLat);
+          const lon1 = parseFloat(r.checkLon);
+          const lat2 = parseFloat(r.studioLat);
+          const lon2 = parseFloat(r.studioLon);
+          const dLat = toRad(lat2 - lat1);
+          const dLon = toRad(lon2 - lon1);
+          const a2 = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+          distance = 6371 * 2 * Math.atan2(Math.sqrt(a2), Math.sqrt(1 - a2)); // km
+          distance = Math.round(distance * 1000) / 1000; // 3 decimal places
+        }
+        return {
+          session: r.session,
+          title: r.title,
+          date: r.date,
+          startTime: r.startTime,
+          endTime: r.endTime,
+          checkInTime: r.check_in_time,
+          status: r.status,
+          distance,
+          studioName: r.studioName,
+        };
+      });
+      
+      return NextResponse.json(enriched);
     }
     
     if (batchId && !memberId) {

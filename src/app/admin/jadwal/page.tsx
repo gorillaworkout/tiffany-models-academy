@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Calendar as CalendarIcon, Edit2, ArrowLeft, Save, X, MapPin, User, Search, Filter, CheckCircle2, Trash } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Edit2, ArrowLeft, Save, X, MapPin, User, Search, Filter, CheckCircle2, Trash, Clock, Navigation } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +23,8 @@ export default function AdminJadwalPage() {
 
   // Curriculum Data
   const [viewingBatch, setViewingBatch] = useState<any>(null); // For Batch Detail View
+  const [viewingModel, setViewingModel] = useState<any>(null); // For Model Attendance Detail
+  const [modelAttendanceDetail, setModelAttendanceDetail] = useState<any[]>([]);
   const [batches, setBatches] = useState<any[]>([]);
   const [isAddingBatch, setIsAddingBatch] = useState<any>(null);
   const [selectedBatch, setSelectedBatch] = useState("");
@@ -481,7 +483,12 @@ export default function AdminJadwalPage() {
                   </div>
                   <div className="space-y-3">
                     {registeredModels.map((m, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 border border-white/5 bg-black hover:border-white/20 transition-colors">
+                      <div key={i} onClick={() => {
+                        setViewingModel(m);
+                        fetch(`/api/attendance?memberId=${m.id}&batchId=${viewingBatch.id}`)
+                          .then(r => r.json())
+                          .then(data => { if (Array.isArray(data)) setModelAttendanceDetail(data); });
+                      }} className="flex items-center justify-between p-3 border border-white/5 bg-black hover:border-white/20 transition-colors cursor-pointer">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-sm font-bold text-zinc-400">
                             {m.name.charAt(0)}
@@ -537,6 +544,113 @@ export default function AdminJadwalPage() {
           )}
         </div>
       )}
+
+      {/* ----------------------------------------------------------- */}
+      {/* MODEL ATTENDANCE DETAIL MODAL */}
+      {/* ----------------------------------------------------------- */}
+      <AnimatePresence>
+        {viewingModel && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => { setViewingModel(null); setModelAttendanceDetail([]); }}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative w-full max-w-2xl bg-zinc-950 border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <button 
+                onClick={() => { setViewingModel(null); setModelAttendanceDetail([]); }}
+                className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/10 text-zinc-400 hover:text-white rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="p-6 md:p-8 border-b border-white/5 bg-white/[0.02] shrink-0">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-xl font-bold text-zinc-400">
+                    {viewingModel.name?.charAt(0)}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-serif">{viewingModel.name}</h2>
+                    <p className="text-xs text-zinc-500">{viewingModel.ig} • {viewingModel.height}cm • {viewingModel.weight}kg</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6 text-xs text-zinc-400">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span>Attendance: <span className="text-white font-bold">{viewingModel.attendance}</span></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="w-4 h-4 text-blue-400" />
+                    <span>{modelAttendanceDetail.length} of 16 sessions attended</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 md:p-8 bg-black overflow-y-auto space-y-3">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500 mb-4">Attendance History</h4>
+                
+                {modelAttendanceDetail.length === 0 ? (
+                  <p className="text-sm text-zinc-500 italic text-center py-8">No attendance records yet.</p>
+                ) : (
+                  modelAttendanceDetail.map((att, idx) => {
+                    const checkInDate = att.checkInTime ? new Date(att.checkInTime + 'Z') : null;
+                    const checkInTimeStr = checkInDate ? checkInDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }) : '—';
+                    const checkInDateStr = checkInDate ? checkInDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'Asia/Jakarta' }) : '—';
+                    
+                    // Check if late (checked in after start time)
+                    const isLate = att.startTime && checkInTimeStr > att.startTime;
+                    const distanceStr = att.distance !== null ? `${(att.distance * 1000).toFixed(0)}m` : '—';
+                    const isFar = att.distance !== null && att.distance > 1;
+
+                    return (
+                      <div key={idx} className="p-4 border border-white/5 bg-zinc-950 hover:border-white/10 transition-colors">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-blue-500">Session {String(att.session).padStart(2, '0')}</span>
+                            <h4 className="text-sm font-medium text-white mt-1">{att.title}</h4>
+                          </div>
+                          <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-bold border ${
+                            att.status === 'hadir' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
+                          }`}>
+                            {att.status === 'hadir' ? 'Present' : att.status}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-dashed border-white/5">
+                          <div>
+                            <p className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Date</p>
+                            <p className="text-xs text-zinc-300">{checkInDateStr}</p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Check-in Time</p>
+                            <p className={`text-xs font-medium ${isLate ? 'text-red-400' : 'text-emerald-400'}`}>
+                              {checkInTimeStr} {isLate && <span className="text-[9px] text-red-500 ml-1">LATE</span>}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Class Time</p>
+                            <p className="text-xs text-zinc-300">{att.startTime || '—'} - {att.endTime || '—'}</p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Distance</p>
+                            <p className={`text-xs font-medium ${isFar ? 'text-red-400' : 'text-emerald-400'}`}>
+                              {distanceStr} {isFar && <span className="text-[9px] text-red-500 ml-1">FAR</span>}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ----------------------------------------------------------- */}
       {/* EDIT MODAL POPUP */}
