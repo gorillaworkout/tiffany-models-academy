@@ -15,9 +15,11 @@ export async function GET(req: Request) {
       const todayStr = new Date().toISOString().split('T')[0];
       const rows = await d1Query(
         `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.start_time as startTime, j.end_time as endTime, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
-                b.name as batchName, b.studio_id as batchLocation
+                b.name as batchName, b.studio_id as batchLocation,
+                s.name as studioName
          FROM jadwal j
          LEFT JOIN batch b ON j.batch_id = b.id
+         LEFT JOIN studio s ON b.studio_id = s.id
          WHERE j.date > ? AND j.is_configured = 1
          ORDER BY j.date ASC, j.start_time ASC
          LIMIT 5`,
@@ -31,11 +33,11 @@ export async function GET(req: Request) {
       const todayStr = new Date().toISOString().split('T')[0];
       const rows = await d1Query(
         `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.start_time as startTime, j.end_time as endTime, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
-                b.name as batchName,
-                s.lat as studioLat, s.lon as studioLon
+                b.name as batchName, b.studio_id as batchLocation,
+                s.name as studioName, s.lat as studioLat, s.lon as studioLon
          FROM jadwal j
          LEFT JOIN batch b ON j.batch_id = b.id
-         LEFT JOIN studio s ON j.studio = s.id
+         LEFT JOIN studio s ON b.studio_id = s.id
          WHERE j.date = ? AND j.is_configured = 1
          ORDER BY j.start_time ASC, j.time ASC`,
         [todayStr]
@@ -49,9 +51,10 @@ export async function GET(req: Request) {
 
     const rows = await d1Query(
       `SELECT j.id, j.batch_id as batchId, j.session, j.title, j.description, j.date, j.time, j.start_time as startTime, j.end_time as endTime, j.studio, j.trainer, j.outfit, j.props, j.is_configured as isConfigured,
-              s.lat as studioLat, s.lon as studioLon
+              s.name as studioName, s.lat as studioLat, s.lon as studioLon
        FROM jadwal j
-       LEFT JOIN studio s ON j.studio = s.id
+       LEFT JOIN batch b ON j.batch_id = b.id
+       LEFT JOIN studio s ON b.studio_id = s.id
        WHERE j.batch_id = ? ORDER BY j.session ASC`, 
       [batchId]
     );

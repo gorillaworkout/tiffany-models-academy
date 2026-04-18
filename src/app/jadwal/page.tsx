@@ -209,7 +209,7 @@ export default function JadwalPage() {
                     <Clock className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.timeDisplay || session.time}
                   </div>
                   <div className="flex items-center text-xs text-zinc-400">
-                    <MapPin className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.studio || 'TBA'}
+                    <MapPin className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.studioName || session.studio || 'TBA'}
                   </div>
                   <div className="flex items-center text-xs text-zinc-400">
                     <User className="w-3.5 h-3.5 mr-2 text-zinc-500" /> {session.trainer || 'TBA'}
@@ -275,7 +275,7 @@ export default function JadwalPage() {
                 <div className="flex flex-wrap gap-y-3 gap-x-6 text-xs text-zinc-400">
                   <div className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-zinc-500" /> {selectedSession.displayDate}</div>
                   <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-zinc-500" /> {selectedSession.timeDisplay || selectedSession.time}</div>
-                  <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-zinc-500" /> {selectedSession.studio || 'TBA'}</div>
+                  <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-zinc-500" /> {selectedSession.studioName || selectedSession.studio || 'TBA'}</div>
                   <div className="flex items-center gap-2"><User className="w-4 h-4 text-zinc-500" /> {selectedSession.trainer || 'TBA'}</div>
                 </div>
               </div>
@@ -311,7 +311,7 @@ export default function JadwalPage() {
                 
                 <div className="pt-6">
                   <a 
-                    href={`https://maps.google.com/?q=${encodeURIComponent(selectedSession.studio + " Tiffany Models Academy")}`}
+                    href={`https://maps.google.com/?q=${encodeURIComponent((selectedSession.studioName || selectedSession.studio || "") + " Tiffany Models Academy")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-white text-black hover:bg-zinc-200 text-xs font-bold uppercase tracking-widest transition-colors"

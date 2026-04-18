@@ -102,7 +102,8 @@ export default function DashboardPage() {
     }).then(() => { fetchUsers(); fetchStats(); });
   };
   const [userName, setUserName] = useState("Tiffany");
-  const [userBranch, setUserBranch] = useState("Jakarta Selatan");
+  const [userBranch, setUserBranch] = useState("");
+  const [userBatchName, setUserBatchName] = useState("");
   const [userStatus, setUserStatus] = useState("pending");
 
   // Geolocation & Attendance State
@@ -232,7 +233,7 @@ export default function DashboardPage() {
                        setStudioCoords({
                          lat: parseFloat(sessionToday.studioLat),
                          lon: parseFloat(sessionToday.studioLon),
-                         name: sessionToday.studio || "Studio",
+                         name: sessionToday.studioName || sessionToday.studio || "Studio",
                        });
                      }
                      // Check if already checked in
@@ -270,14 +271,22 @@ export default function DashboardPage() {
              }
            });
 
-         // Fetch batch name for branch display
-         fetch('/api/batches')
-           .then(r => r.json())
-           .then(batchData => {
+         // Fetch batch name and studio name for branch display
+         Promise.all([
+           fetch('/api/batches').then(r => r.json()),
+           fetch('/api/studios').then(r => r.json())
+         ]).then(([batchData, studioData]) => {
              if (Array.isArray(batchData)) {
                const myBatch = batchData.find(b => b.id == parsed.batchId);
                if (myBatch) {
-                 setUserBranch(myBatch.branch || "Jakarta");
+                 setUserBatchName(myBatch.name || "");
+                 // Find the studio name from studios list
+                 if (Array.isArray(studioData)) {
+                   const myStudio = studioData.find(s => s.id === myBatch.branch);
+                   setUserBranch(myStudio ? myStudio.name : myBatch.branch || "");
+                 } else {
+                   setUserBranch(myBatch.branch || "");
+                 }
                }
              }
            });
@@ -677,7 +686,7 @@ export default function DashboardPage() {
                         {cls.batchName || "Batch"}
                       </p>
                       <div className="flex items-center text-xs text-zinc-400 gap-2">
-                        <MapPin className="w-3 h-3" /> {cls.studio || "TBD"}
+                        <MapPin className="w-3 h-3" /> {cls.studioName || cls.studio || "TBD"}
                       </div>
                     </div>
                   ))
@@ -710,7 +719,7 @@ export default function DashboardPage() {
                             {session.batchName || "Batch"}
                           </p>
                           <div className="flex items-center text-xs text-zinc-400 gap-2">
-                            <MapPin className="w-3 h-3" /> {session.studio || session.batchLocation || 'TBD'}
+                            <MapPin className="w-3 h-3" /> {session.studioName || session.batchLocation || 'TBD'}
                           </div>
                         </div>
                       );
@@ -819,8 +828,8 @@ export default function DashboardPage() {
           </h1>
           <p className="text-zinc-400 text-sm font-light">
             Registered at{" "}
-            <span className="text-white font-medium">{userBranch} Branch</span>{" "}
-            (Batch 1)
+            <span className="text-white font-medium">{userBranch || 'Loading...'}</span>{" "}
+            {userBatchName && <>({userBatchName})</>}
           </p>
         </div>
         <div className="flex gap-4">
@@ -1039,7 +1048,7 @@ export default function DashboardPage() {
                         {session.title}
                       </h4>
                       <div className="flex items-center text-xs text-zinc-400 gap-2">
-                        <MapPin className="w-3 h-3" /> {session.studio || 'TBD'}
+                        <MapPin className="w-3 h-3" /> {session.studioName || session.studio || 'TBD'}
                       </div>
                     </div>
                   );
