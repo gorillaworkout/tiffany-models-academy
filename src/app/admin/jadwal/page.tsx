@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Calendar as CalendarIcon, Edit2, ArrowLeft, Save, X, MapPin, User, Search, Filter, CheckCircle2, Trash, Clock, Navigation } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Edit2, ArrowLeft, Save, X, MapPin, User, Search, Filter, CheckCircle2, Trash, Clock, Navigation, ArrowRightLeft, AlertTriangle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -92,6 +92,8 @@ export default function AdminJadwalPage() {
   // Fetch registered models dynamically for the selected batch
   const [registeredModels, setRegisteredModels] = useState<any[]>([]);
   const [batchAttendance, setBatchAttendance] = useState<any[]>([]);
+  const [transferRequests, setTransferRequests] = useState<any[]>([]);
+  const [processingTransfer, setProcessingTransfer] = useState<string | null>(null);
 
   useEffect(() => {
     if (viewingBatch) {
@@ -108,6 +110,12 @@ export default function AdminJadwalPage() {
       fetch(`/api/attendance?batchId=${viewingBatch.id}`).then(r => r.json()).then(data => {
         if (Array.isArray(data)) {
           setBatchAttendance(data);
+        }
+      });
+      // Fetch pending transfer requests TO this batch
+      fetch(`/api/transfer?batchId=${viewingBatch.id}`).then(r => r.json()).then(data => {
+        if (Array.isArray(data)) {
+          setTransferRequests(data);
         }
       });
     }
@@ -540,6 +548,147 @@ export default function AdminJadwalPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Transfer Requests Section */}
+              {transferRequests.length > 0 && (
+                <div className="bg-zinc-950 border border-white/5 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <ArrowRightLeft className="w-5 h-5 text-amber-400" />
+                      <h3 className="text-xl font-serif">Transfer Requests</h3>
+                    </div>
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-amber-400 bg-amber-500/10 px-3 py-1 border border-amber-500/20">
+                      {transferRequests.length} Pending
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    {transferRequests.map((tr: any) => {
+                      const gapDetails = tr.gap_details ? JSON.parse(tr.gap_details) : {};
+                      const createdDate = tr.created_at ? new Date(tr.created_at + 'Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Jakarta' }) : '—';
+                      return (
+                        <div key={tr.id} className="p-5 border border-white/5 bg-black hover:border-white/10 transition-colors">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-sm font-bold text-zinc-400">
+                                {(tr.memberName || '?').charAt(0)}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-white mb-1">{tr.memberName || 'Unknown'}</p>
+                                <p className="text-[10px] uppercase tracking-widest text-zinc-500">{tr.memberEmail}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Requested</p>
+                              <p className="text-xs text-zinc-400">{createdDate}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 mb-3 text-xs text-zinc-400">
+                            <span className="px-2 py-1 bg-zinc-900 border border-white/5">{tr.fromBatchName}</span>
+                            <ArrowRightLeft className="w-3 h-3 text-zinc-600" />
+                            <span className="px-2 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400">{tr.toBatchName}</span>
+                          </div>
+
+                          {tr.reason && (
+                            <p className="text-xs text-zinc-500 mb-3 italic">&ldquo;{tr.reason}&rdquo;</p>
+                          )}
+
+                          {/* Module Gap Warning */}
+                          {tr.module_gap > 0 && (
+                            <div className="p-3 border border-amber-500/20 bg-amber-500/5 mb-4">
+                              <div className="flex items-start gap-2">
+                                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                                <div>
+                                  <p className="text-xs font-medium text-amber-400 mb-1">
+                                    Module gap: {tr.module_gap} session{tr.module_gap > 1 ? 's' : ''} behind
+                                  </p>
+                                  {gapDetails.gapSessions && gapDetails.gapSessions.length > 0 && (
+                                    <div className="space-y-0.5">
+                                      {gapDetails.gapSessions.map((s: string, i: number) => (
+                                        <p key={i} className="text-[10px] text-amber-500/60">• {s}</p>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {tr.module_gap <= 0 && (
+                            <div className="p-3 border border-emerald-500/20 bg-emerald-500/5 mb-4">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                <p className="text-xs text-emerald-400">No module gap</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Approve / Reject Buttons */}
+                          <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/5">
+                            <button
+                              disabled={processingTransfer === tr.id}
+                              onClick={async () => {
+                                setProcessingTransfer(tr.id);
+                                try {
+                                  const res = await fetch('/api/transfer', {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ requestId: tr.id, action: 'reject' })
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    toast.success("Transfer rejected");
+                                    setTransferRequests(prev => prev.filter(t => t.id !== tr.id));
+                                  } else {
+                                    toast.error(data.error || "Failed");
+                                  }
+                                } catch { toast.error("Error"); }
+                                setProcessingTransfer(null);
+                              }}
+                              className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] uppercase tracking-widest font-bold border border-red-500/20 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                              {processingTransfer === tr.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />} Reject
+                            </button>
+                            <button
+                              disabled={processingTransfer === tr.id}
+                              onClick={async () => {
+                                setProcessingTransfer(tr.id);
+                                try {
+                                  const res = await fetch('/api/transfer', {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ requestId: tr.id, action: 'approve' })
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    toast.success(`Transfer approved! ${tr.memberName} moved to ${tr.toBatchName}`);
+                                    setTransferRequests(prev => prev.filter(t => t.id !== tr.id));
+                                    // Refresh enrolled models count
+                                    fetch('/api/users').then(r => r.json()).then(data => {
+                                      if (Array.isArray(data)) {
+                                        setRegisteredModels(data.filter(u => u.status === 'approved' && u.role === 'student' && u.batch_id == viewingBatch.id).map(m => ({
+                                          ...m,
+                                          attendance: `${Math.round((m.attended_count / 16) * 100)}%`
+                                        })));
+                                      }
+                                    });
+                                  } else {
+                                    toast.error(data.error || "Failed");
+                                  }
+                                } catch { toast.error("Error"); }
+                                setProcessingTransfer(null);
+                              }}
+                              className="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] uppercase tracking-widest font-bold border border-emerald-500/20 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                              {processingTransfer === tr.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />} Approve
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

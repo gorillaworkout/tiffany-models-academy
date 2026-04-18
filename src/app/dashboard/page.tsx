@@ -23,6 +23,9 @@ import {
   Eye,
   EyeOff,
   KeyRound,
+  ArrowRightLeft,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -123,6 +126,17 @@ export default function DashboardPage() {
   const [resetPwTarget, setResetPwTarget] = useState<any>(null);
   const [resetPwValue, setResetPwValue] = useState("");
 
+  // Transfer Batch State
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferBatches, setTransferBatches] = useState<any[]>([]);
+  const [selectedTransferBatch, setSelectedTransferBatch] = useState("");
+  const [transferReason, setTransferReason] = useState("");
+  const [transferGapCheck, setTransferGapCheck] = useState<any>(null);
+  const [isCheckingGap, setIsCheckingGap] = useState(false);
+  const [isSubmittingTransfer, setIsSubmittingTransfer] = useState(false);
+  const [pendingTransfer, setPendingTransfer] = useState<any>(null);
+  const [userBatchId, setUserBatchId] = useState("");
+
   // Student dynamic data
   const [studentStats, setStudentStats] = useState({
     statusLabel: "Pending",
@@ -153,6 +167,7 @@ export default function DashboardPage() {
          });
       } else if (parsed.batchId) {
          // Fetch student status label
+         setUserBatchId(parsed.batchId);
          setStudentStats(prev => ({
            ...prev,
            statusLabel: parsed.status === 'approved' ? 'Active Model' : parsed.status === 'rejected' ? 'Rejected' : 'Pending',
@@ -288,6 +303,17 @@ export default function DashboardPage() {
                    setUserBranch(myBatch.branch || "");
                  }
                }
+               // Store all batches for transfer (exclude current)
+               setTransferBatches(batchData.filter(b => b.id != parsed.batchId));
+             }
+           });
+
+         // Check for pending transfer requests
+         fetch(`/api/transfer?memberId=${parsed.id}`)
+           .then(r => r.json())
+           .then(data => {
+             if (Array.isArray(data) && data.length > 0) {
+               setPendingTransfer(data[0]);
              }
            });
       }
@@ -832,7 +858,24 @@ export default function DashboardPage() {
             {userBatchName && <>({userBatchName})</>}
           </p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
+          {pendingTransfer ? (
+            <div className="px-5 py-2.5 bg-amber-500/10 border border-amber-500/20 text-xs uppercase tracking-widest font-bold text-amber-400 flex items-center gap-2">
+              <ArrowRightLeft className="w-3.5 h-3.5" /> Transfer Pending → {pendingTransfer.toBatchName}
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setShowTransferModal(true);
+                setSelectedTransferBatch("");
+                setTransferReason("");
+                setTransferGapCheck(null);
+              }}
+              className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-white/5 text-xs uppercase tracking-widest font-bold transition-all flex items-center gap-2"
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5" /> Transfer Batch
+            </button>
+          )}
           <button
             onClick={() => setShowChangePassword(true)}
             className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-white/5 text-xs uppercase tracking-widest font-bold transition-all flex items-center gap-2"
@@ -1155,6 +1198,194 @@ export default function DashboardPage() {
                 >
                   {isChangingPw ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : "Save Password"}
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* TRANSFER BATCH MODAL */}
+      <AnimatePresence>
+        {showTransferModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => setShowTransferModal(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative w-full max-w-lg bg-zinc-950 border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <button 
+                onClick={() => setShowTransferModal(false)}
+                className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/10 text-zinc-400 hover:text-white rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="p-6 md:p-8 border-b border-white/5 bg-white/[0.02] shrink-0">
+                <div className="flex items-center gap-3 mb-2">
+                  <ArrowRightLeft className="w-5 h-5 text-blue-400" />
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-blue-400">Batch Transfer</span>
+                </div>
+                <h2 className="text-2xl font-serif">Request Batch Transfer</h2>
+                <p className="text-xs text-zinc-500 mt-2">Transfer from <span className="text-white font-medium">{userBatchName}</span> to another batch.</p>
+              </div>
+
+              <div className="p-6 md:p-8 bg-black overflow-y-auto space-y-6">
+                {/* Target Batch Selection */}
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block">Select Target Batch</label>
+                  <select
+                    value={selectedTransferBatch}
+                    onChange={async (e) => {
+                      const val = e.target.value;
+                      setSelectedTransferBatch(val);
+                      setTransferGapCheck(null);
+                      if (val) {
+                        setIsCheckingGap(true);
+                        try {
+                          const savedUser = JSON.parse(localStorage.getItem("tma_user") || "{}");
+                          const res = await fetch(`/api/transfer?check=true&memberId=${savedUser.id}&fromBatchId=${userBatchId}&toBatchId=${val}`);
+                          const data = await res.json();
+                          setTransferGapCheck(data);
+                        } catch {
+                          toast.error("Failed to check module gap");
+                        }
+                        setIsCheckingGap(false);
+                      }
+                    }}
+                    className="w-full bg-zinc-900/50 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30"
+                  >
+                    <option value="">— Choose a batch —</option>
+                    {transferBatches.map(b => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} • {b.branch} • {b.totalStudents}/{b.maxStudents} spots
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Reason */}
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block">Reason (Optional)</label>
+                  <textarea
+                    value={transferReason}
+                    onChange={e => setTransferReason(e.target.value)}
+                    placeholder="Why do you want to transfer?"
+                    className="w-full bg-zinc-900/50 border border-white/10 p-3 min-h-[80px] text-sm text-white focus:outline-none focus:border-white/30 resize-y"
+                  />
+                </div>
+
+                {/* Gap Check Loading */}
+                {isCheckingGap && (
+                  <div className="flex items-center gap-3 p-4 border border-white/5 bg-zinc-900/30">
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                    <span className="text-sm text-zinc-400">Checking module compatibility...</span>
+                  </div>
+                )}
+
+                {/* Gap Check Results */}
+                {transferGapCheck && !isCheckingGap && (
+                  <div className="space-y-4">
+                    {/* Progress Info */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 border border-white/5 bg-zinc-900/30">
+                        <p className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Your Progress</p>
+                        <p className="text-lg font-serif text-white">{transferGapCheck.fromProgress} <span className="text-sm text-zinc-500 font-sans">of {transferGapCheck.fromTotal} sessions</span></p>
+                      </div>
+                      <div className="p-4 border border-white/5 bg-zinc-900/30">
+                        <p className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1">Target Batch Progress</p>
+                        <p className="text-lg font-serif text-white">{transferGapCheck.toProgress} <span className="text-sm text-zinc-500 font-sans">of {transferGapCheck.toTotal} sessions</span></p>
+                      </div>
+                    </div>
+
+                    {/* Gap Warning */}
+                    {transferGapCheck.gap > 0 && (
+                      <div className="p-4 border border-amber-500/20 bg-amber-500/5">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-amber-400 mb-2">
+                              You will miss {transferGapCheck.gap} module{transferGapCheck.gap > 1 ? 's' : ''}
+                            </p>
+                            <div className="space-y-1">
+                              {transferGapCheck.gapSessions.map((s: string, i: number) => (
+                                <p key={i} className="text-xs text-amber-500/70">• {s}</p>
+                              ))}
+                            </div>
+                            <p className="text-xs text-zinc-500 mt-2">You&apos;ll need to catch up on these independently.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {transferGapCheck.gap <= 0 && transferGapCheck.canTransfer && (
+                      <div className="p-4 border border-emerald-500/20 bg-emerald-500/5">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                          <p className="text-sm text-emerald-400">No module gap — you&apos;re on track!</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {!transferGapCheck.canTransfer && (
+                      <div className="p-4 border border-red-500/20 bg-red-500/5">
+                        <div className="flex items-center gap-3">
+                          <X className="w-5 h-5 text-red-400 shrink-0" />
+                          <p className="text-sm text-red-400">This batch is full ({transferGapCheck.totalStudents}/{transferGapCheck.maxStudents} spots taken)</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                  <button type="button" onClick={() => setShowTransferModal(false)}
+                    className="px-4 py-2 text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-white">Cancel</button>
+                  <button
+                    type="button"
+                    disabled={!selectedTransferBatch || !transferGapCheck?.canTransfer || isSubmittingTransfer}
+                    onClick={async () => {
+                      setIsSubmittingTransfer(true);
+                      try {
+                        const savedUser = JSON.parse(localStorage.getItem("tma_user") || "{}");
+                        const res = await fetch('/api/transfer', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            memberId: savedUser.id,
+                            fromBatchId: userBatchId,
+                            toBatchId: selectedTransferBatch,
+                            reason: transferReason,
+                          })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          toast.success("Transfer request submitted!", { description: "Your request is pending admin approval." });
+                          setShowTransferModal(false);
+                          // Re-fetch pending transfer
+                          const trRes = await fetch(`/api/transfer?memberId=${savedUser.id}`);
+                          const trData = await trRes.json();
+                          if (Array.isArray(trData) && trData.length > 0) {
+                            setPendingTransfer(trData[0]);
+                          }
+                        } else {
+                          toast.error(data.error || "Failed to submit transfer request");
+                        }
+                      } catch {
+                        toast.error("An error occurred");
+                      }
+                      setIsSubmittingTransfer(false);
+                    }}
+                    className="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-zinc-200 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isSubmittingTransfer ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : "Request Transfer"}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

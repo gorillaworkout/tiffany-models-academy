@@ -81,3 +81,17 @@ export const absensi = sqliteTable("absensi", {
   lon: text("lon"), // GPS Check-in
   checkInTime: text("check_in_time").default(sql`CURRENT_TIMESTAMP`),
 });
+
+// 8. Tabel Transfer Requests
+export const transferRequests = sqliteTable("transfer_requests", {
+  id: text("id").primaryKey(),
+  memberId: integer("member_id").notNull(),
+  fromBatchId: text("from_batch_id").notNull(),
+  toBatchId: text("to_batch_id").notNull(),
+  status: text("status").notNull().default("pending"), // pending, approved, rejected
+  reason: text("reason").default(""),
+  moduleGap: integer("module_gap").default(0), // positive = behind, negative = ahead
+  gapDetails: text("gap_details").default(""), // JSON string with details
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  resolvedAt: text("resolved_at"),
+});
