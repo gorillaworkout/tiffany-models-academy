@@ -29,6 +29,12 @@ export default function AdminJadwalPage() {
   const [isAddingBatch, setIsAddingBatch] = useState<any>(null);
   const [selectedBatch, setSelectedBatch] = useState("");
 
+  // Helper to get studio name from studio ID
+  const getStudioName = (studioId: string) => {
+    const studio = studios.find(s => s.id === studioId);
+    return studio ? studio.name : studioId;
+  };
+
   // Set default selected batch when batches load
   useEffect(() => {
     if (batches.length > 0 && !selectedBatch) {
@@ -232,7 +238,7 @@ export default function AdminJadwalPage() {
                   <option value="">No batches available</option>
                 ) : (
                   batches.map(b => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
+                    <option key={b.id} value={b.id}>{b.name} — {getStudioName(b.branch)}</option>
                   ))
                 )}
               </select>
@@ -242,7 +248,7 @@ export default function AdminJadwalPage() {
                 className="bg-black border border-white/10 text-zinc-400 px-3 py-2 text-xs">
                 <option value="">Copy from...</option>
                 {batches.filter((b:any) => b.id !== selectedBatch).map((b:any) => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
+                  <option key={b.id} value={b.id}>{b.name} — {getStudioName(b.branch)}</option>
                 ))}
               </select>
               <button type="button" onClick={handleCopyCurriculum} disabled={!copySourceBatch}
@@ -415,7 +421,7 @@ export default function AdminJadwalPage() {
                   {batches.map((batch) => (
                     <tr key={batch.id} className="hover:bg-zinc-900/20 transition-colors">
                       <td className="px-6 py-5 font-medium text-white">{batch.name}</td>
-                      <td className="px-6 py-5">{batch.branch}</td>
+                      <td className="px-6 py-5">{getStudioName(batch.branch)}</td>
                       <td className="px-6 py-5">{batch.coachId || '—'}</td>
                       <td className="px-6 py-5">
                         <span className={batch.totalStudents >= (batch.maxStudents || 30) ? "text-amber-400 font-medium" : "text-white"}>
@@ -473,7 +479,7 @@ export default function AdminJadwalPage() {
                     <ArrowLeft className="w-3 h-3" /> Back to Batches List
                   </button>
                   <h2 className="text-3xl font-serif mb-1">{viewingBatch.name}</h2>
-                  <p className="text-sm text-zinc-400">{viewingBatch.branch} • {viewingBatch.coachId || 'No Coach'} • {viewingBatch.totalStudents} Active Models Enrolled</p>
+                  <p className="text-sm text-zinc-400">{getStudioName(viewingBatch.branch)} • {viewingBatch.coachId || 'No Coach'} • {viewingBatch.totalStudents} Active Models Enrolled</p>
                 </div>
                 <div className="flex gap-3">
                   <button className="px-6 py-3 bg-white text-black text-[10px] uppercase tracking-widest font-bold hover:bg-zinc-200 transition-colors">
