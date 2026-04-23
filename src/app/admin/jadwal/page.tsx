@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import RichTextEditor from "@/components/RichTextEditor";
 
 export default function AdminJadwalPage() {
   const [activeTab, setActiveTab] = useState("curriculum");
@@ -877,14 +878,13 @@ export default function AdminJadwalPage() {
                         </div>
                         <div>
                           <label className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1 block">Description</label>
-                          <textarea 
+                          <RichTextEditor 
                             value={slot.description}
-                            onChange={(e) => {
+                            onChange={(val) => {
                               const updated = [...ebookModuleSlots];
-                              updated[idx] = { ...updated[idx], description: e.target.value };
+                              updated[idx] = { ...updated[idx], description: val };
                               setEbookModuleSlots(updated);
                             }}
-                            className="w-full bg-black border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 min-h-[60px] resize-y"
                             placeholder="What will the student learn in this module?"
                           />
                         </div>
@@ -1051,10 +1051,11 @@ export default function AdminJadwalPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] uppercase tracking-widest text-zinc-500">Curriculum Details / Description</Label>
-                    <textarea value={editingSession.description || ""}
-                      onChange={(e) => setEditingSession({...editingSession, description: e.target.value})}
+                    <RichTextEditor 
+                      value={editingSession.description || ""}
+                      onChange={(val) => setEditingSession({...editingSession, description: val})}
                       placeholder="What will the models learn in this session?"
-                      className="w-full bg-zinc-900/50 border border-white/10 p-3 min-h-[100px] text-sm text-white focus:outline-none focus:border-blue-500/50 resize-y rounded-none" />
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft, BookOpen, CheckCircle2, Lock, Camera, Scissors, GraduationCap, ClipboardList, BookText } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -11,6 +11,22 @@ export default function ModulPage() {
     const [modules, setModules] = useState<any[]>([]);
     const [isEbookUser, setIsEbookUser] = useState(false);
     const [moduleCount, setModuleCount] = useState(16);
+
+    // Helper to render rich text HTML safely with target="_blank" on links
+    function RichContent({ html }: { html: string }) {
+      const processedHtml = useMemo(() => {
+        if (!html) return 'No description available yet.';
+        // Add target="_blank" to all links
+        return html.replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ');
+      }, [html]);
+      
+      return (
+        <div 
+          className="text-sm text-zinc-300 font-light leading-relaxed mb-6 prose-content"
+          dangerouslySetInnerHTML={{ __html: processedHtml }}
+        />
+      );
+    }
 
     useEffect(() => {
       const savedUser = localStorage.getItem("tma_user");
@@ -221,9 +237,7 @@ export default function ModulPage() {
                   
                   <AccordionContent className="pb-8 pt-2 pl-[4.5rem]">
                     <div className="pr-4 sm:pr-8 border-l border-white/10 pl-6">
-                      <p className="text-sm text-zinc-300 font-light leading-relaxed mb-6">
-                        {module.description}
-                      </p>
+                      <RichContent html={module.description} />
                       
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-white/5">
                         <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-zinc-500">
