@@ -122,7 +122,7 @@ export default function ContactPage() {
                   {info.lines.map((line) => (
                     <p
                       key={line}
-                      className="text-sm text-zinc-300 font-light"
+                      className="text-sm text-zinc-300 font-light break-all"
                     >
                       {line}
                     </p>
