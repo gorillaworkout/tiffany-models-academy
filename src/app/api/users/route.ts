@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     const stats = searchParams.get('stats');
 
     if (stats === 'true') {
-      const activeModels = await d1Query(`SELECT COUNT(*) as count FROM member WHERE status = 'approved' AND role = 'student'`);
+      const activeModels = await d1Query(`SELECT COUNT(*) as count FROM member WHERE status = 'approved' AND role != 'admin'`);
       const pendingApprovals = await d1Query(`SELECT COUNT(*) as count FROM member WHERE status = 'pending'`);
       const branchesCount = await d1Query(`SELECT COUNT(*) as count FROM studio`);
       const publishedModules = await d1Query(`SELECT COUNT(*) as count FROM jadwal WHERE is_configured = 1`);

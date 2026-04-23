@@ -40,9 +40,14 @@ export const jadwal = sqliteTable("jadwal", {
 });
 
 // 4. Tabel Member / Murid (Ditambah Email & Password buat Login!)
+// Valid roles: 'admin' | 'ebook' | 'class' | 'private'
+//   - admin: Director, full admin panel access
+//   - ebook: E-Book Member, curriculum/modules page only, no batch/branch needed
+//   - class: Class Member, full access (modules, jadwal, attendance, transfer), requires batch/branch
+//   - private: Private Class, curriculum/modules page only, no batch/branch needed
 export const member = sqliteTable("member", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  batchId: integer("batch_id").references(() => batch.id).notNull(),
+  batchId: integer("batch_id").references(() => batch.id).notNull(), // empty string for ebook/private
   namaLengkap: text("nama_lengkap").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(), // Akan kita hash (acak) nanti biar aman
@@ -50,7 +55,7 @@ export const member = sqliteTable("member", {
   instagram: text("instagram"),
   tinggiBadan: integer("tinggi_badan"), 
   beratBadan: integer("berat_badan"), 
-  role: text("role").notNull().default("student"), // student atau admin
+  role: text("role").notNull().default("class"), // admin, ebook, class, private
   status: text("status").notNull().default("pending"), // pending, approved, rejected
   tanggalDaftar: text("tanggal_daftar").default(sql`CURRENT_TIMESTAMP`),
 });

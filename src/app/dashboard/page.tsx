@@ -32,7 +32,7 @@ import { toast } from "sonner";
 
 export default function DashboardPage() {
   const [isMounted, setIsMounted] = useState(false);
-  const [userRole, setUserRole] = useState("model");
+  const [userRole, setUserRole] = useState("class");
   const [users, setUsers] = useState<any[]>([]);
 
     const [stats, setStats] = useState({
@@ -165,6 +165,14 @@ export default function DashboardPage() {
          fetch('/api/batches').then(r => r.json()).then(data => {
            if (Array.isArray(data)) setAllBatches(data);
          });
+      } else if (parsed.role === 'ebook' || parsed.role === 'private') {
+         // Simplified dashboard — no batch data needed
+         setStudentStats(prev => ({
+           ...prev,
+           statusLabel: parsed.status === 'approved' 
+             ? (parsed.role === 'ebook' ? 'E-Book Member' : 'Private Class') 
+             : parsed.status === 'rejected' ? 'Rejected' : 'Pending',
+         }));
       } else if (parsed.batchId) {
          // Fetch student status label
          setUserBatchId(parsed.batchId);
@@ -638,6 +646,15 @@ export default function DashboardPage() {
                               {u.batchName}{u.batchLocation ? ` • ${u.batchLocation}` : ''}
                             </p>
                           )}
+                          {/* Role Badge */}
+                          <span className={`inline-block mt-1.5 text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border ${
+                            u.role === 'admin' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                            u.role === 'ebook' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                            u.role === 'private' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
+                            'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
+                          }`}>
+                            {u.role === 'class' ? 'Group Class' : u.role === 'ebook' ? 'E-Book' : u.role === 'private' ? 'Private' : u.role === 'admin' ? 'Director' : u.role || 'student'}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between border-t border-white/5 pt-3">
@@ -835,7 +852,205 @@ export default function DashboardPage() {
   }
 
   // -------------------------------------------------------------
-  //  2. STUDENT VIEW (Model Portal)
+  //  2. EBOOK / PRIVATE VIEW (Simplified Portal)
+  // -------------------------------------------------------------
+  if (userRole === "ebook" || userRole === "private") {
+    const planLabel = userRole === "ebook" ? "E-Book Member" : "Private Class";
+    const planIcon = userRole === "ebook" ? "📚" : "👑";
+    
+    return (
+      <div className="min-h-screen bg-black text-white p-6 md:p-10 lg:p-12 w-full selection:bg-white selection:text-black font-sans">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-white/10 pb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="h-px w-6 bg-zinc-500"></span>
+              <span className="text-xs uppercase tracking-[0.3em] text-zinc-400 font-bold">
+                Member Portal
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight mb-2">
+              Welcome back,{" "}
+              <span className="italic text-zinc-500">{userName}</span>.
+            </h1>
+            <p className="text-zinc-400 text-sm font-light">
+              {planIcon} {planLabel}
+            </p>
+          </div>
+          <div className="flex gap-4 flex-wrap">
+            <button
+              onClick={() => setShowChangePassword(true)}
+              className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-white/5 text-xs uppercase tracking-widest font-bold transition-all flex items-center gap-2"
+            >
+              <KeyRound className="w-3.5 h-3.5" /> Change Password
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem("tma_user");
+                window.location.href = "/";
+              }}
+              className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-white/5 text-xs uppercase tracking-widest font-bold transition-all"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        {/* Status Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 bg-zinc-950/50 border border-white/5 p-6 max-w-md"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Your Plan</p>
+              <p className="text-xl font-medium tracking-tight">{planLabel}</p>
+            </div>
+            <User className="w-5 h-5 text-emerald-400 opacity-70" />
+          </div>
+        </motion.div>
+
+        {/* Private class note */}
+        {userRole === "private" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8 p-4 border border-white/5 bg-zinc-900/30 max-w-2xl"
+          >
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              <span className="text-zinc-300 font-medium">Private Sessions</span> — Your training sessions are scheduled directly with your personal coach. Contact your coach for scheduling and session details.
+            </p>
+          </motion.div>
+        )}
+
+        {/* Training Modules Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="max-w-2xl"
+        >
+          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-400 mb-4">
+            Academy Hub
+          </h2>
+          <a
+            href="/modul"
+            className="group block relative bg-zinc-900/40 border border-white/5 p-8 hover:bg-zinc-900 transition-colors"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <BookOpen className="w-8 h-8 text-zinc-400 mb-6 group-hover:text-white transition-colors" />
+            <h3 className="text-2xl font-serif mb-3">Training Modules</h3>
+            <p className="text-sm text-zinc-500 leading-relaxed font-light mb-8">
+              Access the complete 16-part curriculum covering basic catwalk,
+              photo posing, and runway makeup.
+            </p>
+            <div className="flex items-center text-xs font-bold uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
+              Browse Library{" "}
+              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </a>
+        </motion.div>
+
+        {/* CHANGE PASSWORD MODAL - reuse from student view */}
+        <AnimatePresence>
+          {showChangePassword && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                onClick={() => { setShowChangePassword(false); setPwForm({ current: "", new: "", confirm: "" }); }}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="relative w-full max-w-md bg-zinc-950 border border-white/10 p-8 shadow-2xl"
+              >
+                <h3 className="text-2xl font-serif mb-2">Change Password</h3>
+                <p className="text-xs text-zinc-500 mb-6">Enter your current password and choose a new one.</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block mb-2">Current Password</label>
+                    <div className="relative">
+                      <input type={showPwCurrent ? "text" : "password"} value={pwForm.current}
+                        onChange={e => setPwForm({...pwForm, current: e.target.value})}
+                        className="w-full bg-zinc-900/50 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 pr-10" />
+                      <button type="button" onClick={() => setShowPwCurrent(!showPwCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
+                        {showPwCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block mb-2">New Password</label>
+                    <div className="relative">
+                      <input type={showPwNew ? "text" : "password"} value={pwForm.new}
+                        onChange={e => setPwForm({...pwForm, new: e.target.value})}
+                        className="w-full bg-zinc-900/50 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 pr-10" />
+                      <button type="button" onClick={() => setShowPwNew(!showPwNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
+                        {showPwNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block mb-2">Confirm New Password</label>
+                    <input type="password" value={pwForm.confirm}
+                      onChange={e => setPwForm({...pwForm, confirm: e.target.value})}
+                      className="w-full bg-zinc-900/50 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30" />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-8">
+                  <button type="button" onClick={() => { setShowChangePassword(false); setPwForm({ current: "", new: "", confirm: "" }); }}
+                    className="px-4 py-2 text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-white">Cancel</button>
+                  <button type="button" disabled={isChangingPw}
+                    onClick={async () => {
+                      if (!pwForm.current || !pwForm.new || !pwForm.confirm) {
+                        toast.error("Semua field harus diisi"); return;
+                      }
+                      if (pwForm.new.length < 6) {
+                        toast.error("Password minimal 6 karakter"); return;
+                      }
+                      if (pwForm.new !== pwForm.confirm) {
+                        toast.error("Password baru tidak cocok"); return;
+                      }
+                      setIsChangingPw(true);
+                      try {
+                        const savedUser = JSON.parse(localStorage.getItem("tma_user") || "{}");
+                        const res = await fetch('/api/auth/change-password', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ userId: savedUser.id, currentPassword: pwForm.current, newPassword: pwForm.new })
+                        });
+                        const data = await res.json();
+                        setIsChangingPw(false);
+                        if (data.success) {
+                          toast.success("Password berhasil diubah!");
+                          setShowChangePassword(false);
+                          setPwForm({ current: "", new: "", confirm: "" });
+                        } else {
+                          toast.error(data.error || "Gagal mengubah password");
+                        }
+                      } catch {
+                        setIsChangingPw(false);
+                        toast.error("Terjadi kesalahan");
+                      }
+                    }}
+                    className="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-zinc-200 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isChangingPw ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : "Save Password"}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  //  3. STUDENT VIEW (Model Portal) — role === 'class'
   // -------------------------------------------------------------
   return (
     <div className="min-h-screen bg-black text-white p-6 md:p-10 lg:p-12 w-full selection:bg-white selection:text-black font-sans">

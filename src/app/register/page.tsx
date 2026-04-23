@@ -6,8 +6,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowRight, Sparkles, Loader2, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Sparkles, Loader2, Eye, EyeOff, BookOpen, GraduationCap, Crown, Check } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const PLANS = [
+  {
+    id: "ebook",
+    icon: BookOpen,
+    label: "E-Book Access",
+    description: "Get the complete modeling curriculum e-book",
+    features: ["Full curriculum e-book", "Self-paced learning", "Digital materials"],
+  },
+  {
+    id: "class",
+    icon: GraduationCap,
+    label: "Group Class",
+    description: "Join our 16-session modeling program with live training",
+    features: ["16 live sessions", "Studio training", "Attendance tracking", "Coach guidance"],
+  },
+  {
+    id: "private",
+    icon: Crown,
+    label: "Private Class",
+    description: "One-on-one personalized training sessions",
+    features: ["Private coaching", "Flexible scheduling", "Personalized curriculum", "Full e-book access"],
+  },
+] as const;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -21,6 +45,7 @@ export default function RegisterPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -48,16 +73,25 @@ export default function RegisterPage() {
     });
   }, []);
 
+  const needsBatch = selectedPlan === "class";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.branch) {
-      toast.error("Please select a branch location");
+    if (!selectedPlan) {
+      toast.error("Please select a plan");
       return;
     }
-    if (!formData.batch) {
-      toast.error("Please select a batch");
-      return;
+    
+    if (needsBatch) {
+      if (!formData.branch) {
+        toast.error("Please select a branch location");
+        return;
+      }
+      if (!formData.batch) {
+        toast.error("Please select a batch");
+        return;
+      }
     }
     
     setIsLoading(true);
@@ -66,7 +100,10 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          role: selectedPlan,
+        })
       });
       const data = await res.json();
       
@@ -82,7 +119,7 @@ export default function RegisterPage() {
          toast.success("Welcome, Director!", { description: "Your admin account is ready." });
          setTimeout(() => router.push('/dashboard'), 1500);
       } else {
-         // Student needs approval
+         // Member needs approval
          toast.success("Registration Sent", { description: "Please wait for admin approval before logging in!" });
          // DO NOT LOG IN. Redirect to login page instead
          setTimeout(() => router.push('/login'), 2000);
@@ -92,6 +129,8 @@ export default function RegisterPage() {
        toast.error("Error", { description: e.message });
     }
   };
+
+  const isFormValid = selectedPlan && formData.fullName && formData.email && formData.password && formData.whatsapp && (!needsBatch || (formData.branch && formData.batch));
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black flex flex-col lg:flex-row">
@@ -137,11 +176,61 @@ export default function RegisterPage() {
               <span className="font-serif italic tracking-widest text-sm text-zinc-400">TMA</span>
             </div>
             <h2 className="text-3xl font-serif mb-2">Create Account</h2>
-            <p className="text-sm text-zinc-400">Enter your details to join the academy.</p>
+            <p className="text-sm text-zinc-400">Choose your plan and enter your details to join.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             
+            {/* PLAN SELECTOR */}
+            <div className="space-y-3">
+              <Label className="text-xs uppercase tracking-widest text-zinc-500">Choose Your Plan</Label>
+              <div className="grid grid-cols-1 gap-3">
+                {PLANS.map((plan) => {
+                  const isSelected = selectedPlan === plan.id;
+                  const Icon = plan.icon;
+                  return (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPlan(plan.id);
+                        // Clear batch/branch when switching away from class
+                        if (plan.id !== 'class') {
+                          setFormData(f => ({ ...f, branch: '', batch: '' }));
+                        }
+                      }}
+                      className={`relative text-left p-4 border transition-all duration-300 group ${
+                        isSelected
+                          ? 'bg-white/[0.05] border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.05)]'
+                          : 'bg-zinc-950/50 border-white/5 hover:border-white/15 hover:bg-zinc-900/30'
+                      }`}
+                    >
+                      {/* Selection indicator */}
+                      <div className={`absolute top-4 right-4 w-5 h-5 border-2 flex items-center justify-center transition-all ${
+                        isSelected ? 'border-white bg-white' : 'border-zinc-700'
+                      }`}>
+                        {isSelected && <Check className="w-3 h-3 text-black" />}
+                      </div>
+
+                      <div className="flex items-start gap-3 pr-8">
+                        <div className={`w-10 h-10 flex items-center justify-center border transition-colors shrink-0 ${
+                          isSelected ? 'border-white/20 bg-white/10' : 'border-white/5 bg-zinc-900'
+                        }`}>
+                          <Icon className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-zinc-500'}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className={`text-sm font-bold tracking-wide mb-0.5 ${isSelected ? 'text-white' : 'text-zinc-300'}`}>
+                            {plan.label}
+                          </h3>
+                          <p className="text-xs text-zinc-500 leading-relaxed">{plan.description}</p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* ROW 1: Name & Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2">
@@ -202,39 +291,41 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ROW 4: Branch & Batch */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-zinc-500">Branch</Label>
-                <Select onValueChange={(val) => setFormData({...formData, branch: val})}>
-                  <SelectTrigger className="bg-zinc-900/50 border-white/10 h-12 px-4 text-sm rounded-none focus:ring-1 focus:ring-white/30">
-                    <SelectValue placeholder="Select..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-none max-h-[200px] z-[100]">
-                    {studios.map(s => (
-                       <SelectItem key={s.id} value={s.id} className="focus:bg-white/10 focus:text-white cursor-pointer">{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* ROW 4: Branch & Batch - ONLY FOR CLASS PLAN */}
+            {needsBatch && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-widest text-zinc-500">Branch</Label>
+                  <Select onValueChange={(val) => setFormData({...formData, branch: val})}>
+                    <SelectTrigger className="bg-zinc-900/50 border-white/10 h-12 px-4 text-sm rounded-none focus:ring-1 focus:ring-white/30">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-none max-h-[200px] z-[100]">
+                      {studios.map(s => (
+                         <SelectItem key={s.id} value={s.id} className="focus:bg-white/10 focus:text-white cursor-pointer">{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-widest text-zinc-500">Batch</Label>
+                  <Select disabled={!formData.branch} onValueChange={(val) => setFormData({...formData, batch: val})}>
+                    <SelectTrigger className="bg-zinc-900/50 border-white/10 h-12 px-4 text-sm rounded-none focus:ring-1 focus:ring-white/30 disabled:opacity-30">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-none max-h-[200px] z-[100]">
+                      {batches.filter(b => b.branch === formData.branch).length === 0 ? (
+                        <div className="py-3 px-4 text-xs text-zinc-500 italic text-center">Currently no active batches available at this location. Please check back later or contact our admin.</div>
+                      ) : (
+                        batches.filter(b => b.branch === formData.branch).map(b => (
+                           <SelectItem key={b.id} value={b.id} className="focus:bg-white/10 focus:text-white cursor-pointer">{b.name} ({b.maxStudents || 30} Quota)</SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-zinc-500">Batch</Label>
-                <Select disabled={!formData.branch} onValueChange={(val) => setFormData({...formData, batch: val})}>
-                  <SelectTrigger className="bg-zinc-900/50 border-white/10 h-12 px-4 text-sm rounded-none focus:ring-1 focus:ring-white/30 disabled:opacity-30">
-                    <SelectValue placeholder="Select..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-none max-h-[200px] z-[100]">
-                    {batches.filter(b => b.branch === formData.branch).length === 0 ? (
-                      <div className="py-3 px-4 text-xs text-zinc-500 italic text-center">Currently no active batches available at this location. Please check back later or contact our admin.</div>
-                    ) : (
-                      batches.filter(b => b.branch === formData.branch).map(b => (
-                         <SelectItem key={b.id} value={b.id} className="focus:bg-white/10 focus:text-white cursor-pointer">{b.name} ({b.maxStudents || 30} Quota)</SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            )}
 
             {/* ROW 5: Password */}
             <div className="space-y-2 pt-2 border-t border-white/5 mt-6">
@@ -260,7 +351,7 @@ export default function RegisterPage() {
             </div>
 
             <Button 
-              type="submit" disabled={isLoading || !formData.fullName || !formData.email || !formData.password || !formData.whatsapp || !formData.branch || !formData.batch}
+              type="submit" disabled={isLoading || !isFormValid}
               className="w-full h-12 mt-4 bg-white text-black hover:bg-zinc-200 rounded-none text-xs tracking-widest flex items-center justify-center gap-2 group transition-all font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {isLoading ? (

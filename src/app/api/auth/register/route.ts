@@ -11,13 +11,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Email sudah terdaftar." }, { status: 400 });
     }
 
-    const role = data.email.toLowerCase() === 'darmawanbayu1@gmail.com' ? 'admin' : 'student';
-    // Admin gets auto-approved, students are pending
+    // Determine role: admin override for specific email, otherwise use submitted role
+    const isAdmin = data.email.toLowerCase() === 'darmawanbayu1@gmail.com';
+    const validRoles = ['ebook', 'class', 'private'];
+    const submittedRole = validRoles.includes(data.role) ? data.role : 'class';
+    const role = isAdmin ? 'admin' : submittedRole;
+    
+    // Admin gets auto-approved, others are pending
     const status = role === 'admin' ? 'approved' : 'pending';
 
-    const batchId = data.batch || null;
+    const batchId = data.batch || '';
     
-    if (!batchId && role === 'student') {
+    // Only require batch for class role
+    if (role === 'class' && !batchId) {
       return NextResponse.json({ success: false, error: "Silakan pilih batch terlebih dahulu." }, { status: 400 });
     }
 
@@ -25,7 +31,7 @@ export async function POST(req: Request) {
       INSERT INTO member (batch_id, nama_lengkap, email, password, no_whatsapp, instagram, tinggi_badan, berat_badan, role, status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
-      batchId || '', 
+      batchId, 
       data.fullName || data.name, 
       data.email, 
       data.password, 

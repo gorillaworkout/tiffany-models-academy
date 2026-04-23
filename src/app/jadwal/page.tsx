@@ -18,6 +18,13 @@ export default function JadwalPage() {
     let parsed: any = null;
     if (savedUser) {
       parsed = JSON.parse(savedUser);
+      
+      // Redirect ebook/private users — they don't have access to jadwal
+      if (parsed.role === 'ebook' || parsed.role === 'private') {
+        window.location.href = '/dashboard';
+        return;
+      }
+      
       setUserName(parsed.fullName.split(' ')[0]);
       if (parsed.batchId) {
         setBatchId(parsed.batchId);
