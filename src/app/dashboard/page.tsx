@@ -214,6 +214,7 @@ export default function DashboardPage() {
          const loadClassDashboard = (parsed: any, batchId: string) => {
          // Fetch student status label
          setUserBatchId(batchId);
+         let configuredCount = 16; // will be updated from jadwal fetch
          setStudentStats(prev => ({
            ...prev,
            statusLabel: parsed.status === 'approved' ? 'Active Model' : parsed.status === 'rejected' ? 'Rejected' : 'Pending',
@@ -239,6 +240,7 @@ export default function DashboardPage() {
                   const todayStr = new Date(now.getTime()).toISOString().split('T')[0];
                   const nowHHmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                   const configuredSessions = data.filter(s => s.isConfigured === 1);
+                  configuredCount = configuredSessions.length;
                   
                   // Count completed sessions (past dates OR today with endTime passed)
                   const completedCount = configuredSessions.filter(s => {
@@ -253,7 +255,7 @@ export default function DashboardPage() {
 
                   setStudentStats(prev => ({
                     ...prev,
-                    modulesLabel: `${completedCount} of ${data.length} Done`,
+                    modulesLabel: `${completedCount} of ${configuredSessions.length} Done`,
                   }));
 
                   // Find upcoming sessions: date > today, OR date = today with endTime not passed
@@ -328,7 +330,7 @@ export default function DashboardPage() {
                    if (Array.isArray(usersData)) {
                      const me = usersData.find(u => u.id === parsed.id);
                      if (me) {
-                       const pct = Math.round((me.attended_count / 16) * 100);
+                       const pct = Math.round((me.attended_count / (configuredCount || 16)) * 100);
                        setStudentStats(prev => ({
                          ...prev,
                          gradeLabel: `${pct}%`,
@@ -1099,7 +1101,7 @@ export default function DashboardPage() {
             <BookOpen className="w-8 h-8 text-zinc-400 mb-6 group-hover:text-white transition-colors" />
             <h3 className="text-2xl font-serif mb-3">Training Modules</h3>
             <p className="text-sm text-zinc-500 leading-relaxed font-light mb-8">
-              Access the complete 16-part curriculum covering basic catwalk,
+              Access the complete curriculum covering basic catwalk,
               photo posing, and runway makeup.
             </p>
             <div className="flex items-center text-xs font-bold uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
@@ -1491,7 +1493,7 @@ export default function DashboardPage() {
                 <BookOpen className="w-8 h-8 text-zinc-400 mb-6 group-hover:text-white transition-colors" />
                 <h3 className="text-2xl font-serif mb-3">Training Modules</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed font-light mb-8">
-                  Access the complete 16-part curriculum covering basic catwalk,
+                  Access the complete curriculum covering basic catwalk,
                   photo posing, and runway makeup.
                 </p>
                 <div className="flex items-center text-xs font-bold uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">

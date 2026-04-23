@@ -85,6 +85,10 @@ export default function ModulPage() {
             parsed.id ? fetch(`/api/attendance?memberId=${parsed.id}&batchId=${parsed.batchId}`).then(r => r.json()).catch(() => []) : Promise.resolve([])
           ]).then(([jadwalData, attendanceData]) => {
               if (Array.isArray(jadwalData)) {
+                 // Only show configured modules
+                 const configuredJadwal = jadwalData.filter((d: any) => d.isConfigured === 1);
+                 setModuleCount(configuredJadwal.length);
+
                  // Build a set of jadwal IDs the student has attended
                  const attendedJadwalIds = new Set<string>();
                  if (Array.isArray(attendanceData)) {
@@ -94,16 +98,16 @@ export default function ModulPage() {
                  }
 
                  let foundNext = false;
-                 const mapped = jadwalData.map((d: any, i: number) => {
+                 const mapped = configuredJadwal.map((d: any, i: number) => {
                    let status = "locked";
                    const attended = attendedJadwalIds.has(d.id);
                    
                    if (attended) {
                      status = "completed";
-                   } else if (d.isConfigured && !foundNext) {
+                   } else if (!foundNext) {
                      status = "active";
                      foundNext = true;
-                   } else if (d.isConfigured) {
+                   } else {
                      status = "active";
                    }
 
@@ -144,7 +148,7 @@ export default function ModulPage() {
   if (!isMounted) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="text-white font-serif italic tracking-widest animate-pulse">TMA</div></div>;
 
   const completedCount = modules?.filter((m: any) => m.status === 'completed').length || 0;
-  const totalModules = isEbookUser ? moduleCount : 16;
+  const totalModules = moduleCount;
   const progressPercent = Math.round((completedCount / totalModules) * 100);
 
   return (
@@ -166,7 +170,7 @@ export default function ModulPage() {
             {isEbookUser ? (
               <>The {totalModules}-Part <span className="italic text-zinc-500">Curriculum</span>.</>
             ) : (
-              <>The 16-Part <span className="italic text-zinc-500">Syllabus</span>.</>
+              <>The {totalModules}-Part <span className="italic text-zinc-500">Syllabus</span>.</>
             )}
           </h1>
           <p className="text-zinc-400 text-sm font-light max-w-xl">
@@ -201,7 +205,7 @@ export default function ModulPage() {
               <div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${progressPercent}%` }} />
             </div>
             <div className="text-[10px] text-zinc-500 mt-2 text-right">
-              {completedCount} of 16 Modules Learned
+              {completedCount} of {totalModules} Modules Learned
             </div>
           </div>
         )}
