@@ -66,7 +66,7 @@ export async function GET(req: Request) {
        const summary = await d1Query(`
          SELECT j.id as jadwalId, j.session, j.title, j.date, 
                 (SELECT COUNT(*) FROM absensi a WHERE a.jadwal_id = j.id AND a.status = 'hadir') as present,
-                (SELECT COUNT(*) FROM member m WHERE m.batch_id = j.batch_id AND m.status = 'approved' AND m.role = 'student') as total
+                (SELECT COUNT(*) FROM member m WHERE m.batch_id = j.batch_id AND m.status = 'approved' AND m.role = 'class') as total
          FROM jadwal j
          WHERE j.batch_id = ? AND j.is_configured = 1
          ORDER BY j.session ASC
@@ -77,7 +77,7 @@ export async function GET(req: Request) {
          if (s.present < s.total && s.present > 0) {
            const absentees = await d1Query(`
              SELECT m.nama_lengkap as name FROM member m 
-             WHERE m.batch_id = ? AND m.status = 'approved' AND m.role = 'student'
+             WHERE m.batch_id = ? AND m.status = 'approved' AND m.role = 'class'
              AND m.id NOT IN (SELECT a.member_id FROM absensi a WHERE a.jadwal_id = ? AND a.status = 'hadir')
            `, [batchId, s.jadwalId]);
            return { ...s, absentees: (absentees || []).map((a: any) => a.name) };
@@ -94,7 +94,7 @@ export async function GET(req: Request) {
             SELECT m.id as memberId, m.nama_lengkap as name, a.status, a.check_in_time as time
             FROM member m
             LEFT JOIN absensi a ON m.id = a.member_id AND a.jadwal_id = ?
-            WHERE m.batch_id = (SELECT batch_id FROM jadwal WHERE id = ?) AND m.status = 'approved' AND m.role = 'student'
+            WHERE m.batch_id = (SELECT batch_id FROM jadwal WHERE id = ?) AND m.status = 'approved' AND m.role = 'class'
         `, [jadwalId, jadwalId]);
         return NextResponse.json(details);
     }

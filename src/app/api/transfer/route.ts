@@ -54,7 +54,7 @@ export async function GET(req: Request) {
       // Check if toBatch has room
       const capacity = await d1Query(
         `SELECT b.max_students as maxStudents, 
-                (SELECT COUNT(*) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'student') as totalStudents
+                (SELECT COUNT(*) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'class') as totalStudents
          FROM batch b WHERE b.id = ?`,
         [toBatchId]
       );
@@ -168,7 +168,7 @@ export async function POST(req: Request) {
     // Check capacity
     const capacity = await d1Query(
       `SELECT b.max_students as maxStudents, 
-              (SELECT COUNT(*) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'student') as totalStudents
+              (SELECT COUNT(*) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'class') as totalStudents
        FROM batch b WHERE b.id = ?`,
       [toBatchId]
     );
@@ -243,7 +243,7 @@ export async function PUT(req: Request) {
       // Check capacity again before approving
       const capacity = await d1Query(
         `SELECT b.max_students as maxStudents, 
-                (SELECT COUNT(*) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'student') as totalStudents
+                (SELECT COUNT(*) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'class') as totalStudents
          FROM batch b WHERE b.id = ?`,
         [tr.to_batch_id]
       );
