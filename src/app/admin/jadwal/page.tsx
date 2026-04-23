@@ -775,20 +775,19 @@ export default function AdminJadwalPage() {
                             fetch(`/api/ebook-modules?packageId=${pkg.id}`)
                               .then(r => r.json())
                               .then(data => {
-                                if (Array.isArray(data) && data.length > 0) {
-                                  setEbookModuleSlots(data.map((d: any) => ({
-                                    session: d.session,
-                                    title: d.title,
-                                    description: d.description || ""
-                                  })));
-                                } else {
-                                  // Generate empty slots
-                                  setEbookModuleSlots(Array.from({ length: pkg.moduleCount }, (_, i) => ({
-                                    session: i + 1,
-                                    title: `Module ${i + 1}`,
-                                    description: ""
-                                  })));
+                                // Always generate all slots based on moduleCount, merge with existing data
+                                const existingMap = new Map<number, any>();
+                                if (Array.isArray(data)) {
+                                  data.forEach((d: any) => existingMap.set(d.session, d));
                                 }
+                                setEbookModuleSlots(Array.from({ length: pkg.moduleCount }, (_, i) => {
+                                  const existing = existingMap.get(i + 1);
+                                  return {
+                                    session: i + 1,
+                                    title: existing?.title || `Module ${i + 1}`,
+                                    description: existing?.description || ""
+                                  };
+                                }));
                               });
                           }}
                           className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase tracking-widest font-bold transition-colors"
