@@ -48,6 +48,7 @@ export default function LoginPage() {
         email: data.user.email,
         fullName: data.user.name,
         role: data.user.role,
+        status: data.user.status || 'approved',
         alamat: data.user.alamat || null,
         ukuran_heels: data.user.ukuran_heels || null,
         ukuran_baju: data.user.ukuran_baju || null,
