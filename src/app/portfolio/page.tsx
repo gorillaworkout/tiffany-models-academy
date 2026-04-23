@@ -21,49 +21,49 @@ const categories = ["All", "Runway", "Editorial", "Behind the Scenes"];
 const galleryImages = [
   {
     src: "/images/tma-magazine.jpg",
-    alt: "TMA Magazine Feature",
+    alt: "Model TMA dalam pemotretan editorial majalah fashion Indonesia",
     category: "Editorial",
     span: "row-span-2",
   },
   {
     src: "/images/tma-sunglasses.jpg",
-    alt: "TMA Sunglasses Editorial",
+    alt: "Model Tiffanny Models Academy berpose dengan sunglasses untuk editorial fashion",
     category: "Editorial",
     span: "",
   },
   {
     src: "/images/tma-group.jpg",
-    alt: "TMA Group Session",
+    alt: "Sesi pelatihan grup model di studio Tiffanny Models Academy",
     category: "Behind the Scenes",
     span: "",
   },
   {
     src: "/images/tma-rose.jpg",
-    alt: "TMA Rose Portrait",
+    alt: "Model TMA portrait elegan dengan bunga mawar untuk runway fashion show",
     category: "Runway",
     span: "row-span-2",
   },
   {
     src: "/images/tma-sunglasses.jpg",
-    alt: "TMA Fashion Shoot",
+    alt: "Fashion shoot model profesional Tiffanny Models Academy di runway",
     category: "Runway",
     span: "",
   },
   {
     src: "/images/tma-magazine.jpg",
-    alt: "TMA Cover Story",
+    alt: "Cover story model TMA untuk majalah fashion profesional",
     category: "Editorial",
     span: "",
   },
   {
     src: "/images/tma-group.jpg",
-    alt: "TMA Academy Training",
+    alt: "Behind the scenes pelatihan catwalk di akademi model TMA",
     category: "Behind the Scenes",
     span: "",
   },
   {
     src: "/images/tma-rose.jpg",
-    alt: "TMA Model Portrait",
+    alt: "Portrait model profesional Tiffanny Models Academy untuk portfolio",
     category: "Runway",
     span: "",
   },
@@ -223,7 +223,7 @@ export default function PortfolioPage() {
             >
               <Image
                 src={lightboxImage}
-                alt="Gallery image"
+                alt="Portfolio galeri model Tiffanny Models Academy"
                 fill
                 className="object-contain"
                 sizes="90vw"

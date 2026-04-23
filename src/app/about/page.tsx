@@ -122,7 +122,7 @@ export default function AboutPage() {
         <div className="absolute inset-0">
           <Image
             src="/images/tma-group.jpg"
-            alt="TMA Group"
+            alt="Grup model Tiffanny Models Academy - akademi model profesional terbaik di Jakarta dan Bandung"
             fill
             className="object-cover grayscale opacity-40"
             priority

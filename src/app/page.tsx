@@ -111,7 +111,7 @@ export default function HomePage() {
           <div className="relative h-full overflow-hidden border-r border-white/5">
             <Image
               src="/images/tma-magazine.jpg"
-              alt="TMA Model"
+              alt="Model Tiffanny Models Academy dalam pemotretan editorial majalah fashion"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
               priority
@@ -120,7 +120,7 @@ export default function HomePage() {
           <div className="relative h-full overflow-hidden border-r border-white/5">
             <Image
               src="/images/tma-sunglasses.jpg"
-              alt="TMA Model"
+              alt="Model TMA berpose dengan sunglasses untuk fashion editorial"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
               priority
@@ -129,7 +129,7 @@ export default function HomePage() {
           <div className="relative h-full overflow-hidden border-r border-white/5 hidden lg:block">
             <Image
               src="/images/tma-group.jpg"
-              alt="TMA Group"
+              alt="Grup model Tiffanny Models Academy sesi pelatihan bersama di studio Jakarta"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
             />
@@ -137,7 +137,7 @@ export default function HomePage() {
           <div className="relative h-full overflow-hidden hidden lg:block">
             <Image
               src="/images/tma-rose.jpg"
-              alt="TMA Model"
+              alt="Model TMA portrait elegan dengan bunga mawar untuk editorial fashion"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
             />
@@ -155,9 +155,9 @@ export default function HomePage() {
         >
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="w-2 h-2 bg-red-500 rounded-full" />
-            <h2 className="text-xs md:text-sm uppercase tracking-[0.4em] text-zinc-400 font-bold">
+            <p className="text-xs md:text-sm uppercase tracking-[0.4em] text-zinc-400 font-bold">
               Tiffanny Models Academy
-            </h2>
+            </p>
             <div className="w-2 h-2 bg-red-500 rounded-full" />
           </div>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-medium mb-8 leading-tight">
@@ -247,7 +247,7 @@ export default function HomePage() {
             <div className="absolute -inset-4 border border-white/10" />
             <Image
               src="/images/tma-magazine.jpg"
-              alt="Magazine Cover"
+              alt="Tiffanny Models Academy featured in fashion magazine editorial cover"
               width={600}
               height={800}
               className="w-full h-[600px] object-cover grayscale"

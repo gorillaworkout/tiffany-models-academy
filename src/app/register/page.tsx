@@ -153,7 +153,7 @@ export default function RegisterPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
           <img 
             src="/images/tma-group.jpg" 
-            alt="Fashion Model" 
+            alt="Model-model Tiffanny Models Academy berlatih di studio - sekolah model profesional Indonesia" 
             className="w-full h-full object-cover filter grayscale"
           />
         </div>

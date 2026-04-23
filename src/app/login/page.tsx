@@ -73,7 +73,7 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
           <img 
             src="/images/tma-magazine.jpg" 
-            alt="Fashion Model Cover" 
+            alt="Tiffanny Models Academy magazine cover - akademi model profesional" 
             className="w-full h-full object-cover filter grayscale"
           />
         </div>
