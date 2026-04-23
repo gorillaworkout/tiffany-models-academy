@@ -1,14 +1,6 @@
 "use client";
 
-import dynamic from 'next/dynamic';
-import { useMemo, useRef, useCallback } from 'react';
-import 'react-quill-new/dist/quill.snow.css';
-
-// Dynamic import to avoid SSR issues
-const ReactQuill = dynamic(() => import('react-quill-new'), { 
-  ssr: false,
-  loading: () => <div className="h-[200px] bg-zinc-900/50 border border-white/10 animate-pulse" />
-});
+import { useRef, useEffect } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -18,48 +10,78 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
-  const lastValueRef = useRef(value);
-  
-  const modules = useMemo(() => ({
-    toolbar: [
-      [{ 'header': [2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['link'],
-      ['clean']
-    ],
-  }), []);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<any>(null);
+  const onChangeRef = useRef(onChange);
+  const isInternalChange = useRef(false);
+  const initialValueRef = useRef(value);
 
-  const formats = useMemo(() => [
-    'header',
-    'bold', 'italic', 'underline',
-    'list', 'bullet',
-    'link'
-  ], []);
+  // Keep onChange ref current
+  onChangeRef.current = onChange;
 
-  // Prevent infinite re-render: only call onChange when value actually changes
-  const handleChange = useCallback((newValue: string) => {
-    // React Quill emits '<p><br></p>' for empty content
-    const normalized = newValue === '<p><br></p>' ? '' : newValue;
-    if (normalized !== lastValueRef.current) {
-      lastValueRef.current = normalized;
-      onChange(normalized);
+  useEffect(() => {
+    const editorEl = editorRef.current;
+    if (!editorEl || quillRef.current) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const { default: Quill } = await import('quill');
+
+      if (cancelled || !editorEl) return;
+
+      const quill = new Quill(editorEl, {
+        theme: 'snow',
+        placeholder: placeholder || 'Write your content here...',
+        modules: {
+          toolbar: [
+            [{ header: [2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['link'],
+            ['clean'],
+          ],
+        },
+      });
+
+      // Set initial content
+      if (initialValueRef.current) {
+        quill.root.innerHTML = initialValueRef.current;
+      }
+
+      // Listen for text changes
+      quill.on('text-change', () => {
+        isInternalChange.current = true;
+        const html = quill.root.innerHTML;
+        const normalized = html === '<p><br></p>' ? '' : html;
+        onChangeRef.current(normalized);
+        setTimeout(() => { isInternalChange.current = false; }, 0);
+      });
+
+      quillRef.current = quill;
+    })();
+
+    return () => {
+      cancelled = true;
+      quillRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync external value changes into Quill
+  useEffect(() => {
+    if (!quillRef.current || isInternalChange.current) return;
+    const currentHtml = quillRef.current.root.innerHTML;
+    const normalizedCurrent = currentHtml === '<p><br></p>' ? '' : currentHtml;
+    if (value !== normalizedCurrent) {
+      quillRef.current.root.innerHTML = value || '';
     }
-  }, [onChange]);
-
-  // Keep ref in sync when parent value changes
-  lastValueRef.current = value;
+  }, [value]);
 
   return (
-    <div className={`rich-text-editor ${className || ''}`}>
-      <ReactQuill
-        theme="snow"
-        value={value || ''}
-        onChange={handleChange}
-        modules={modules}
-        formats={formats}
-        placeholder={placeholder || "Write your content here..."}
-      />
+    <div className={`rich-text-editor ${className || ''}`} ref={containerRef}>
+      <div ref={editorRef} />
     </div>
   );
 }
