@@ -35,14 +35,17 @@ export async function GET(req: Request) {
       m.alamat,
       m.ukuran_heels,
       m.ukuran_baju,
+      m.ebook_package_id,
       (
         SELECT COUNT(*) FROM absensi a WHERE a.member_id = m.id AND a.status = 'hadir'
       ) as attended_count,
       16 as total_sessions,
       b.name as batchName,
-      b.studio_id as batchLocation
+      b.studio_id as batchLocation,
+      ep.name as ebookPackageName
     FROM member m
-    LEFT JOIN batch b ON m.batch_id = b.id`);
+    LEFT JOIN batch b ON m.batch_id = b.id
+    LEFT JOIN ebook_packages ep ON m.ebook_package_id = ep.id`);
     return NextResponse.json(rows);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -58,6 +61,8 @@ export async function POST(req: Request) {
        await d1Query("UPDATE member SET status = 'rejected' WHERE id = ?", [data.id]);
     } else if (data.action === 'delete') {
        await d1Query("DELETE FROM member WHERE id = ?", [data.id]);
+    } else if (data.action === 'assign-package') {
+       await d1Query("UPDATE member SET ebook_package_id = ? WHERE id = ?", [data.packageId, data.id]);
     }
     return NextResponse.json({ success: true });
   } catch (e: any) {

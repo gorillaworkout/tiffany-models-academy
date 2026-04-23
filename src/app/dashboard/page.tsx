@@ -54,6 +54,12 @@ export default function DashboardPage() {
   const [batchFilter, setBatchFilter] = useState("all");
   const [allBatches, setAllBatches] = useState<any[]>([]);
 
+  // Admin ebook package assignment
+  const [ebookPackagesAdmin, setEbookPackagesAdmin] = useState<any[]>([]);
+  const [assigningPackageUser, setAssigningPackageUser] = useState<any>(null);
+  const [selectedAssignPackage, setSelectedAssignPackage] = useState("");
+  const [isAssigningPackage, setIsAssigningPackage] = useState(false);
+
   const fetchStats = async () => {
     try {
       const res = await fetch('/api/users?stats=true');
@@ -172,6 +178,10 @@ export default function DashboardPage() {
          // Fetch batches for filter dropdown
          fetch('/api/batches').then(r => r.json()).then(data => {
            if (Array.isArray(data)) setAllBatches(data);
+         });
+         // Fetch ebook packages for admin assignment
+         fetch('/api/ebook-packages').then(r => r.json()).then(data => {
+           if (Array.isArray(data)) setEbookPackagesAdmin(data);
          });
       } else if (parsed.role === 'ebook' || parsed.role === 'private') {
          // Simplified dashboard — no batch data needed
@@ -665,6 +675,19 @@ export default function DashboardPage() {
                               {u.batchName}{u.batchLocation ? ` • ${u.batchLocation}` : ''}
                             </p>
                           )}
+                          {(u.role === 'ebook' || u.role === 'private') && (
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-xs text-zinc-600">
+                                {u.ebookPackageName ? `📚 ${u.ebookPackageName}` : '⚠ No package assigned'}
+                              </p>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setAssigningPackageUser(u); setSelectedAssignPackage(u.ebook_package_id || ""); }}
+                                className="text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-blue-500/20 text-blue-400 hover:bg-blue-500/10 transition-colors"
+                              >
+                                {u.ebookPackageName ? 'Change' : 'Assign'}
+                              </button>
+                            </div>
+                          )}
                           {/* Role Badge */}
                           <span className={`inline-block mt-1.5 text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border ${
                             u.role === 'admin' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
@@ -870,6 +893,88 @@ export default function DashboardPage() {
                     className="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-zinc-200"
                   >
                     Reset Password
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* ADMIN ASSIGN EBOOK PACKAGE MODAL */}
+        <AnimatePresence>
+          {assigningPackageUser && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto">
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                onClick={() => setAssigningPackageUser(null)}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="relative w-full max-w-md bg-zinc-950 border border-white/10 p-8 shadow-2xl"
+              >
+                <h3 className="text-xl font-serif mb-2">Assign E-Book Package</h3>
+                <p className="text-xs text-zinc-500 mb-1">
+                  For <span className="text-white font-medium">{assigningPackageUser.name}</span>
+                </p>
+                {assigningPackageUser.ebookPackageName && (
+                  <p className="text-xs text-zinc-400 mb-6">
+                    Current package: <span className="text-blue-400 font-medium">📚 {assigningPackageUser.ebookPackageName}</span>
+                  </p>
+                )}
+                {!assigningPackageUser.ebookPackageName && (
+                  <p className="text-xs text-amber-500/70 mb-6">⚠ No package currently assigned</p>
+                )}
+                
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block mb-2">Select Package</label>
+                  <select
+                    value={selectedAssignPackage}
+                    onChange={e => setSelectedAssignPackage(e.target.value)}
+                    className="w-full bg-zinc-900/50 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30"
+                  >
+                    <option value="">— Choose a package —</option>
+                    {ebookPackagesAdmin.map(pkg => (
+                      <option key={pkg.id} value={pkg.id}>
+                        {pkg.name} ({pkg.moduleCount} modules)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-8">
+                  <button type="button" onClick={() => setAssigningPackageUser(null)}
+                    className="px-4 py-2 text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-white">Cancel</button>
+                  <button type="button"
+                    disabled={!selectedAssignPackage || isAssigningPackage}
+                    onClick={async () => {
+                      setIsAssigningPackage(true);
+                      try {
+                        const res = await fetch('/api/users', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action: 'assign-package', id: assigningPackageUser.id, packageId: selectedAssignPackage })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          const pkgName = ebookPackagesAdmin.find(p => String(p.id) === String(selectedAssignPackage))?.name || 'Package';
+                          toast.success(`📚 ${pkgName} assigned to ${assigningPackageUser.name}`, {
+                            description: "User needs to re-login to see updated package."
+                          });
+                          setAssigningPackageUser(null);
+                          setSelectedAssignPackage("");
+                          fetchUsers();
+                        } else {
+                          toast.error(data.error || "Failed to assign package");
+                        }
+                      } catch {
+                        toast.error("An error occurred");
+                      }
+                      setIsAssigningPackage(false);
+                    }}
+                    className="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-zinc-200 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isAssigningPackage ? <><Loader2 className="w-4 h-4 animate-spin" /> Assigning...</> : "Assign Package"}
                   </button>
                 </div>
               </motion.div>
