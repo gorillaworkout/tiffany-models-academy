@@ -61,11 +61,11 @@ const team = [
   },
 ];
 
-const stats = [
-  { label: "Graduates", value: 150, suffix: "+" },
-  { label: "Active Batches", value: 8, suffix: "" },
-  { label: "Cities", value: 2, suffix: "" },
-  { label: "Training Modules", value: 16, suffix: "+" },
+const STAT_LABELS = [
+  { key: "totalMembers", label: "Active Models", suffix: "+" },
+  { key: "activeBatches", label: "Active Batches", suffix: "" },
+  { key: "cities", label: "Cities", suffix: "" },
+  { key: "totalModules", label: "Training Modules", suffix: "+" },
 ];
 
 function AnimatedCounter({
@@ -105,6 +105,14 @@ function AnimatedCounter({
 }
 
 export default function AboutPage() {
+  const [siteStats, setSiteStats] = useState<any>({});
+
+  useEffect(() => {
+    fetch('/api/stats').then(r => r.json()).then(data => {
+      if (data && !data.error) setSiteStats(data);
+    }).catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black font-sans">
       <Navbar />
@@ -320,14 +328,14 @@ export default function AboutPage() {
             variants={stagger}
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
           >
-            {stats.map((stat) => (
+            {STAT_LABELS.map((stat) => (
               <motion.div
                 key={stat.label}
                 variants={fadeInUp}
                 className="text-center p-8 border border-white/5"
               >
                 <p className="text-4xl md:text-5xl font-serif mb-3">
-                  <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                  <AnimatedCounter value={siteStats[stat.key] || 0} suffix={stat.suffix} />
                 </p>
                 <p className="text-xs uppercase tracking-widest text-zinc-500">
                   {stat.label}

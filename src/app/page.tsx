@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -91,6 +92,14 @@ const testimonials = [
 ];
 
 export default function HomePage() {
+  const [siteStats, setSiteStats] = useState({ totalStudios: 0, totalModules: 0, totalMembers: 0, activeBatches: 0 });
+
+  useEffect(() => {
+    fetch('/api/stats').then(r => r.json()).then(data => {
+      if (data && !data.error) setSiteStats(data);
+    }).catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black font-sans">
       <Navbar />
@@ -281,18 +290,14 @@ export default function HomePage() {
 
             <div className="grid grid-cols-2 gap-8 mt-12 pt-12 border-t border-white/10">
               <div>
-                <p className="text-4xl font-serif mb-2">2</p>
+                <p className="text-4xl font-serif mb-2">{siteStats.totalStudios || 0}</p>
                 <p className="text-xs uppercase tracking-widest text-zinc-500">
                   Active Branches
-                  <br />
-                  (Jakarta &amp; Bandung)
                 </p>
               </div>
               <div>
-                <p className="text-4xl font-serif mb-2">16+</p>
+                <p className="text-4xl font-serif mb-2">{siteStats.totalModules || 0}+</p>
                 <p className="text-xs uppercase tracking-widest text-zinc-500">
-                  Intensive
-                  <br />
                   Training Modules
                 </p>
               </div>
