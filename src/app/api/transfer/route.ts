@@ -85,6 +85,25 @@ export async function GET(req: Request) {
       });
     }
 
+    // Get ALL pending transfer requests (for admin global view)
+    if (searchParams.get('all') === 'true') {
+      const rows = await d1Query(
+        `SELECT tr.*, 
+                m.nama_lengkap as memberName, m.email as memberEmail,
+                bf.name as fromBatchName, bt.name as toBatchName,
+                sf.name as fromStudioName, st.name as toStudioName
+         FROM transfer_requests tr
+         LEFT JOIN member m ON tr.member_id = m.id
+         LEFT JOIN batch bf ON tr.from_batch_id = bf.id
+         LEFT JOIN batch bt ON tr.to_batch_id = bt.id
+         LEFT JOIN studio sf ON bf.studio_id = sf.id
+         LEFT JOIN studio st ON bt.studio_id = st.id
+         WHERE tr.status = 'pending'
+         ORDER BY tr.created_at DESC`
+      );
+      return NextResponse.json(rows || []);
+    }
+
     // Get pending transfer requests for a member
     if (memberId) {
       const rows = await d1Query(

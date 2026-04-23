@@ -102,6 +102,18 @@ export default function AdminJadwalPage() {
   const [transferRequests, setTransferRequests] = useState<any[]>([]);
   const [processingTransfer, setProcessingTransfer] = useState<string | null>(null);
 
+  // Global pending transfer requests (all batches)
+  const [allPendingTransfers, setAllPendingTransfers] = useState<any[]>([]);
+  const [processingGlobalTransfer, setProcessingGlobalTransfer] = useState<string | null>(null);
+
+  const fetchAllPendingTransfers = () => {
+    fetch('/api/transfer?all=true').then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setAllPendingTransfers(data);
+    });
+  };
+
+  useEffect(() => { fetchAllPendingTransfers(); }, []);
+
   // E-Book Packages State
   const [ebookPackages, setEbookPackages] = useState<any[]>([]);
   const [isAddingPackage, setIsAddingPackage] = useState<any>(null);
@@ -217,7 +229,7 @@ export default function AdminJadwalPage() {
         {[
           { id: "curriculum", label: "16-Weeks Curriculum Planner" },
           { id: "branch", label: "Locations & Coaches" },
-          { id: "batch", label: "Manage Batches & Attendance" },
+          { id: "batch", label: "Manage Batches & Attendance", badge: allPendingTransfers.length },
           { id: "ebook", label: "E-Book Packages" }
         ].map((tab) => (
           <button
@@ -228,6 +240,9 @@ export default function AdminJadwalPage() {
             }`}
           >
             {tab.label}
+            {(tab as any).badge > 0 && (
+              <span className="ml-2 px-1.5 py-0.5 bg-amber-500 text-black text-[9px] font-bold rounded-full">{(tab as any).badge}</span>
+            )}
             {activeTab === tab.id && (
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500" />
             )}
@@ -409,6 +424,83 @@ export default function AdminJadwalPage() {
       {/* ----------------------------------------------------------- */}
       {activeTab === "batch" && (
         <div className="space-y-6 animate-in fade-in duration-500">
+
+          {/* GLOBAL PENDING TRANSFER REQUESTS */}
+          {allPendingTransfers.length > 0 && !viewingBatch && (
+            <div className="bg-amber-500/5 border border-amber-500/20 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <ArrowRightLeft className="w-5 h-5 text-amber-400" />
+                <h3 className="text-lg font-serif text-white">Pending Transfer Requests</h3>
+                <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-widest border border-amber-500/30">
+                  {allPendingTransfers.length} Pending
+                </span>
+              </div>
+              <div className="space-y-3">
+                {allPendingTransfers.map((tr: any) => (
+                  <div key={tr.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-black border border-white/5">
+                    <div>
+                      <p className="text-sm font-medium text-white">{tr.memberName}</p>
+                      <p className="text-xs text-zinc-500">{tr.memberEmail}</p>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        <span className="text-zinc-500">{tr.fromBatchName}</span>
+                        <span className="mx-2 text-amber-400">→</span>
+                        <span className="text-white font-medium">{tr.toBatchName}</span>
+                      </p>
+                      {tr.reason && <p className="text-xs text-zinc-500 mt-1 italic">"{tr.reason}"</p>}
+                      {tr.module_gap > 0 && (
+                        <p className="text-[10px] text-amber-400 mt-1">⚠ Will miss {tr.module_gap} module{tr.module_gap > 1 ? 's' : ''}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        disabled={processingGlobalTransfer === tr.id}
+                        onClick={async () => {
+                          setProcessingGlobalTransfer(tr.id);
+                          try {
+                            await fetch('/api/transfer', {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ requestId: tr.id, action: 'reject' })
+                            });
+                            toast.success("Transfer rejected");
+                            setAllPendingTransfers(prev => prev.filter(t => t.id !== tr.id));
+                          } catch { toast.error("Failed"); }
+                          setProcessingGlobalTransfer(null);
+                        }}
+                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] uppercase tracking-widest font-bold border border-red-500/20 transition-colors flex items-center gap-1"
+                      >
+                        {processingGlobalTransfer === tr.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />} Reject
+                      </button>
+                      <button
+                        disabled={processingGlobalTransfer === tr.id}
+                        onClick={async () => {
+                          setProcessingGlobalTransfer(tr.id);
+                          try {
+                            await fetch('/api/transfer', {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ requestId: tr.id, action: 'approve' })
+                            });
+                            toast.success(`Transfer approved! ${tr.memberName} moved to ${tr.toBatchName}`);
+                            setAllPendingTransfers(prev => prev.filter(t => t.id !== tr.id));
+                            // Refresh batches to update counts
+                            fetch('/api/batches').then(r => r.json()).then(data => {
+                              if (Array.isArray(data)) setBatches(data);
+                            });
+                          } catch { toast.error("Failed"); }
+                          setProcessingGlobalTransfer(null);
+                        }}
+                        className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] uppercase tracking-widest font-bold border border-emerald-500/20 transition-colors flex items-center gap-1"
+                      >
+                        {processingGlobalTransfer === tr.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />} Approve
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {!viewingBatch ? (
             // LIST VIEW
             <div>
