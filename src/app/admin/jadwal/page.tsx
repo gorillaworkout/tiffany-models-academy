@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Calendar as CalendarIcon, Edit2, ArrowLeft, Save, X, MapPin, User, Search, Filter, CheckCircle2, Trash, Clock, Navigation, ArrowRightLeft, AlertTriangle, Loader2 } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Edit2, ArrowLeft, Save, X, MapPin, User, Search, Filter, CheckCircle2, Trash, Clock, Navigation, ArrowRightLeft, AlertTriangle, Loader2, BookOpen, Package } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -101,12 +101,26 @@ export default function AdminJadwalPage() {
   const [transferRequests, setTransferRequests] = useState<any[]>([]);
   const [processingTransfer, setProcessingTransfer] = useState<string | null>(null);
 
+  // E-Book Packages State
+  const [ebookPackages, setEbookPackages] = useState<any[]>([]);
+  const [isAddingPackage, setIsAddingPackage] = useState<any>(null);
+  const [editingPackageModules, setEditingPackageModules] = useState<any>(null);
+  const [ebookModuleSlots, setEbookModuleSlots] = useState<any[]>([]);
+  const [isSavingEbookModules, setIsSavingEbookModules] = useState(false);
+
+  // Fetch ebook packages
+  useEffect(() => {
+    fetch('/api/ebook-packages').then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setEbookPackages(data);
+    });
+  }, []);
+
   useEffect(() => {
     if (viewingBatch) {
       // Fetch models for this specific batch
       fetch('/api/users').then(r => r.json()).then(data => {
         if (Array.isArray(data)) {
-           setRegisteredModels(data.filter(u => u.status === 'approved' && u.role === 'student' && u.batch_id == viewingBatch.id).map(m => ({
+           setRegisteredModels(data.filter(u => u.status === 'approved' && u.role === 'class' && u.batch_id == viewingBatch.id).map(m => ({
              ...m,
              attendance: `${Math.round((m.attended_count / 16) * 100)}%`
            })));
@@ -202,7 +216,8 @@ export default function AdminJadwalPage() {
         {[
           { id: "curriculum", label: "16-Weeks Curriculum Planner" },
           { id: "branch", label: "Locations & Coaches" },
-          { id: "batch", label: "Manage Batches & Attendance" }
+          { id: "batch", label: "Manage Batches & Attendance" },
+          { id: "ebook", label: "E-Book Packages" }
         ].map((tab) => (
           <button
             key={tab.id} type="button"
@@ -672,7 +687,7 @@ export default function AdminJadwalPage() {
                                     // Refresh enrolled models count
                                     fetch('/api/users').then(r => r.json()).then(data => {
                                       if (Array.isArray(data)) {
-                                        setRegisteredModels(data.filter(u => u.status === 'approved' && u.role === 'student' && u.batch_id == viewingBatch.id).map(m => ({
+                                        setRegisteredModels(data.filter(u => u.status === 'approved' && u.role === 'class' && u.batch_id == viewingBatch.id).map(m => ({
                                           ...m,
                                           attendance: `${Math.round((m.attended_count / 16) * 100)}%`
                                         })));
@@ -695,6 +710,189 @@ export default function AdminJadwalPage() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ----------------------------------------------------------- */}
+      {/* 4. E-BOOK PACKAGES TAB */}
+      {/* ----------------------------------------------------------- */}
+      {activeTab === "ebook" && (
+        <div className="space-y-6 animate-in fade-in duration-500">
+          {!editingPackageModules ? (
+            // PACKAGE LIST VIEW
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-serif">E-Book Packages</h3>
+                <button 
+                  onClick={() => setIsAddingPackage({ name: "", description: "", moduleCount: 16, status: "active" })}
+                  className="flex items-center gap-2 px-6 py-2 bg-white text-black hover:bg-zinc-200 text-[10px] uppercase tracking-widest font-bold transition-all"
+                >
+                  <Plus className="w-4 h-4" /> Add Package
+                </button>
+              </div>
+
+              {ebookPackages.length === 0 ? (
+                <div className="bg-zinc-950 border border-white/5 p-16 text-center">
+                  <Package className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                  <h4 className="text-lg font-serif text-zinc-400 mb-2">No Packages Yet</h4>
+                  <p className="text-sm text-zinc-600">Create your first e-book package to get started.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {ebookPackages.map((pkg) => (
+                    <div key={pkg.id} className="bg-zinc-950 border border-white/5 p-6 hover:border-white/20 transition-colors group">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 flex items-center justify-center bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                            <BookOpen className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-bold text-white">{pkg.name}</h4>
+                            <span className="text-[10px] uppercase tracking-widest text-zinc-500">{pkg.moduleCount} Modules</span>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-bold border ${
+                          pkg.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                        }`}>
+                          {pkg.status}
+                        </span>
+                      </div>
+                      
+                      {pkg.description && (
+                        <p className="text-xs text-zinc-500 mb-4 line-clamp-2">{pkg.description}</p>
+                      )}
+
+                      <div className="flex items-center justify-end gap-2 pt-4 border-t border-white/5">
+                        <button 
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Load modules for this package
+                            setEditingPackageModules(pkg);
+                            fetch(`/api/ebook-modules?packageId=${pkg.id}`)
+                              .then(r => r.json())
+                              .then(data => {
+                                if (Array.isArray(data) && data.length > 0) {
+                                  setEbookModuleSlots(data.map((d: any) => ({
+                                    session: d.session,
+                                    title: d.title,
+                                    description: d.description || ""
+                                  })));
+                                } else {
+                                  // Generate empty slots
+                                  setEbookModuleSlots(Array.from({ length: pkg.moduleCount }, (_, i) => ({
+                                    session: i + 1,
+                                    title: `Module ${i + 1}`,
+                                    description: ""
+                                  })));
+                                }
+                              });
+                          }}
+                          className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase tracking-widest font-bold transition-colors"
+                        >
+                          Edit Modules
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); setIsAddingPackage({...pkg}); }}
+                          className="p-2 text-zinc-600 hover:text-white transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            if (!confirm('Delete this package and all its modules?')) return;
+                            fetch('/api/ebook-packages', { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: pkg.id}) })
+                              .then(() => setEbookPackages(ebookPackages.filter(p => p.id !== pkg.id)));
+                          }}
+                          className="p-2 text-zinc-600 hover:text-red-400 transition-colors"
+                        >
+                          <Trash className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            // MODULE EDITOR VIEW
+            <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-6 gap-4">
+                <div>
+                  <button onClick={() => { setEditingPackageModules(null); setEbookModuleSlots([]); }} className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors mb-4">
+                    <ArrowLeft className="w-3 h-3" /> Back to Packages
+                  </button>
+                  <h2 className="text-3xl font-serif mb-1">{editingPackageModules.name}</h2>
+                  <p className="text-sm text-zinc-400">{editingPackageModules.moduleCount} Modules • Edit module titles and descriptions below</p>
+                </div>
+                <button 
+                  disabled={isSavingEbookModules}
+                  onClick={async () => {
+                    setIsSavingEbookModules(true);
+                    const tid = toast.loading("Saving modules...");
+                    try {
+                      await fetch('/api/ebook-modules', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ packageId: editingPackageModules.id, modules: ebookModuleSlots })
+                      });
+                      toast.success("Modules saved!", { id: tid, description: `${ebookModuleSlots.length} modules published successfully.` });
+                    } catch (e) {
+                      toast.error("Failed to save", { id: tid });
+                    }
+                    setIsSavingEbookModules(false);
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-widest font-bold transition-all disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" />
+                  {isSavingEbookModules ? "Saving..." : "Save Modules"}
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {ebookModuleSlots.map((slot, idx) => (
+                  <div key={idx} className="bg-zinc-950 border border-white/5 p-5 hover:border-white/15 transition-colors">
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 flex items-center justify-center bg-blue-500/10 text-blue-400 text-xs font-bold rounded-full border border-blue-500/20 shrink-0 mt-1">
+                        {slot.session}
+                      </div>
+                      <div className="flex-1 space-y-3">
+                        <div>
+                          <label className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1 block">Module Title</label>
+                          <input 
+                            value={slot.title}
+                            onChange={(e) => {
+                              const updated = [...ebookModuleSlots];
+                              updated[idx] = { ...updated[idx], title: e.target.value };
+                              setEbookModuleSlots(updated);
+                            }}
+                            className="w-full bg-black border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                            placeholder={`Module ${slot.session} title`}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold mb-1 block">Description</label>
+                          <textarea 
+                            value={slot.description}
+                            onChange={(e) => {
+                              const updated = [...ebookModuleSlots];
+                              updated[idx] = { ...updated[idx], description: e.target.value };
+                              setEbookModuleSlots(updated);
+                            }}
+                            className="w-full bg-black border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 min-h-[60px] resize-y"
+                            placeholder="What will the student learn in this module?"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -1172,6 +1370,96 @@ export default function AdminJadwalPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* E-Book Package Add/Edit Modal */}
+      {isAddingPackage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsAddingPackage(null)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative w-full max-w-md bg-zinc-950 border border-white/10 p-6 shadow-2xl"
+          >
+            <h3 className="text-xl font-serif mb-6">{isAddingPackage.id ? "Edit Package" : "Add New Package"}</h3>
+            <div className="space-y-4">
+              <div>
+                <Label>Package Name</Label>
+                <Input 
+                  value={isAddingPackage.name} 
+                  onChange={e => setIsAddingPackage({...isAddingPackage, name: e.target.value})}
+                  placeholder='e.g. "Complete 16 Modules"'
+                  className="bg-black border-white/10 mt-1"
+                />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <textarea 
+                  value={isAddingPackage.description || ""} 
+                  onChange={e => setIsAddingPackage({...isAddingPackage, description: e.target.value})}
+                  placeholder="Brief description of this package"
+                  className="w-full bg-black border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-y mt-1"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Module Count</Label>
+                  <Input 
+                    type="number" 
+                    value={isAddingPackage.moduleCount} 
+                    onChange={e => setIsAddingPackage({...isAddingPackage, moduleCount: parseInt(e.target.value) || 0})}
+                    className="bg-black border-white/10 mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <Select value={isAddingPackage.status} onValueChange={(val) => setIsAddingPackage({...isAddingPackage, status: val})}>
+                    <SelectTrigger className="bg-black border-white/10 text-white mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-8">
+              <button type="button" onClick={(e) => { e.preventDefault(); setIsAddingPackage(null); }} className="px-4 py-2 text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-white">Cancel</button>
+              <button 
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!isAddingPackage.name) return;
+                  const pkg = {
+                    id: isAddingPackage.id || Date.now().toString(),
+                    name: isAddingPackage.name,
+                    description: isAddingPackage.description || "",
+                    moduleCount: isAddingPackage.moduleCount || 16,
+                    status: isAddingPackage.status || "active"
+                  };
+                  fetch('/api/ebook-packages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pkg)
+                  }).then(() => {
+                    if (isAddingPackage.id) {
+                      setEbookPackages(ebookPackages.map(p => p.id === isAddingPackage.id ? { ...p, ...pkg } : p));
+                    } else {
+                      setEbookPackages([...ebookPackages, pkg]);
+                    }
+                    setIsAddingPackage(null);
+                  });
+                }} 
+                className="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-zinc-200"
+              >
+                {isAddingPackage.id ? "Save Changes" : "Create Package"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

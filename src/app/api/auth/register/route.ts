@@ -28,9 +28,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Silakan pilih batch terlebih dahulu." }, { status: 400 });
     }
 
+    // For ebook/private roles, require ebookPackageId
+    const ebookPackageId = (role === 'ebook' || role === 'private') ? (data.ebookPackageId || null) : null;
+    if ((role === 'ebook' || role === 'private') && !ebookPackageId) {
+      return NextResponse.json({ success: false, error: "Please select an e-book package." }, { status: 400 });
+    }
+
     await d1Query(`
-      INSERT INTO member (batch_id, nama_lengkap, email, password, no_whatsapp, instagram, tinggi_badan, berat_badan, role, status, alamat)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO member (batch_id, nama_lengkap, email, password, no_whatsapp, instagram, tinggi_badan, berat_badan, role, status, alamat, ebook_package_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       batchId, 
       data.fullName || data.name, 
@@ -42,7 +48,8 @@ export async function POST(req: Request) {
       parseInt(data.weight) || 0, 
       role, 
       status,
-      data.address || null
+      data.address || null,
+      ebookPackageId
     ]);
 
     return NextResponse.json({ success: true, status: status });

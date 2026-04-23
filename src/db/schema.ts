@@ -61,6 +61,7 @@ export const member = sqliteTable("member", {
   alamat: text("alamat"), // address
   ukuranHeels: text("ukuran_heels"), // heels size
   ukuranBaju: text("ukuran_baju"), // clothes/outfit size
+  ebookPackageId: text("ebook_package_id"), // links ebook/private users to their package
 });
 
 // 5. Tabel Studio/Location
@@ -102,4 +103,24 @@ export const transferRequests = sqliteTable("transfer_requests", {
   gapDetails: text("gap_details").default(""), // JSON string with details
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   resolvedAt: text("resolved_at"),
+});
+
+// 9. E-Book Packages
+export const ebookPackages = sqliteTable("ebook_packages", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  moduleCount: integer("module_count").notNull().default(16),
+  status: text("status").notNull().default("active"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+// 10. E-Book Modules
+export const ebookModules = sqliteTable("ebook_modules", {
+  id: text("id").primaryKey(),
+  packageId: text("package_id").notNull(),
+  session: integer("session").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });

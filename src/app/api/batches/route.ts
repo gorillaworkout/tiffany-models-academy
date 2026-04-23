@@ -12,7 +12,7 @@ export async function GET() {
         b.coach_id as coachId,
         b.status, 
         b.max_students as maxStudents,
-        (SELECT COUNT(id) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'student') as totalStudents
+        (SELECT COUNT(id) FROM member WHERE batch_id = b.id AND status = 'approved' AND role = 'class') as totalStudents
       FROM batch b
     `);
     return NextResponse.json(rows);

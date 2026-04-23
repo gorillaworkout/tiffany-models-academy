@@ -56,11 +56,13 @@ export default function RegisterPage() {
     weight: "",
     branch: "",
     batch: "",
-    address: ""
+    address: "",
+    ebookPackageId: ""
   });
 
   const [studios, setStudios] = useState<any[]>([]);
   const [batches, setBatches] = useState<any[]>([]);
+  const [ebookPackages, setEbookPackages] = useState<any[]>([]);
 
   useEffect(() => {
     fetch('/api/studios').then(r => r.json()).then(data => {
@@ -72,9 +74,13 @@ export default function RegisterPage() {
         setBatches(data.filter(b => b.status === 'Registration'));
       }
     });
+    fetch('/api/ebook-packages').then(r => r.json()).then(data => {
+      if(Array.isArray(data)) setEbookPackages(data);
+    });
   }, []);
 
   const needsBatch = selectedPlan === "class";
+  const needsPackage = selectedPlan === "ebook" || selectedPlan === "private";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +99,11 @@ export default function RegisterPage() {
         toast.error("Please select a batch");
         return;
       }
+    }
+    
+    if (needsPackage && !formData.ebookPackageId) {
+      toast.error("Please select an e-book package");
+      return;
     }
     
     setIsLoading(true);
@@ -131,7 +142,7 @@ export default function RegisterPage() {
     }
   };
 
-  const isFormValid = selectedPlan && formData.fullName && formData.email && formData.password && formData.whatsapp && (!needsBatch || (formData.branch && formData.batch));
+  const isFormValid = selectedPlan && formData.fullName && formData.email && formData.password && formData.whatsapp && (!needsBatch || (formData.branch && formData.batch)) && (!needsPackage || formData.ebookPackageId);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black flex flex-col lg:flex-row">
@@ -198,6 +209,10 @@ export default function RegisterPage() {
                         // Clear batch/branch when switching away from class
                         if (plan.id !== 'class') {
                           setFormData(f => ({ ...f, branch: '', batch: '' }));
+                        }
+                        // Clear ebookPackageId when switching away from ebook/private
+                        if (plan.id !== 'ebook' && plan.id !== 'private') {
+                          setFormData(f => ({ ...f, ebookPackageId: '' }));
                         }
                       }}
                       className={`relative text-left p-4 border transition-all duration-300 group ${
@@ -335,6 +350,29 @@ export default function RegisterPage() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            )}
+
+            {/* ROW 5b: E-Book Package Selector - ONLY FOR EBOOK/PRIVATE PLAN */}
+            {needsPackage && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Label className="text-xs uppercase tracking-widest text-zinc-500">E-Book Package</Label>
+                <Select onValueChange={(val) => setFormData({...formData, ebookPackageId: val})}>
+                  <SelectTrigger className="bg-zinc-900/50 border-white/10 h-12 px-4 text-sm rounded-none focus:ring-1 focus:ring-white/30">
+                    <SelectValue placeholder="Select your package..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-none max-h-[200px] z-[100]">
+                    {ebookPackages.length === 0 ? (
+                      <div className="py-3 px-4 text-xs text-zinc-500 italic text-center">No packages available yet. Please contact admin.</div>
+                    ) : (
+                      ebookPackages.map(pkg => (
+                        <SelectItem key={pkg.id} value={pkg.id} className="focus:bg-white/10 focus:text-white cursor-pointer">
+                          {pkg.name} ({pkg.moduleCount} Modules)
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 

@@ -51,6 +51,7 @@ export default function LoginPage() {
         alamat: data.user.alamat || null,
         ukuran_heels: data.user.ukuran_heels || null,
         ukuran_baju: data.user.ukuran_baju || null,
+        ebookPackageId: data.user.ebook_package_id || null,
       }));
       
       toast.success(data.user.role === 'admin' ? "Welcome back, Director!" : "Login successful!", { description: "Authenticating your credentials..." });
