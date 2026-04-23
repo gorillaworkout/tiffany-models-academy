@@ -48,12 +48,14 @@ export default function JadwalPage() {
         .then(r => r.json())
         .then(data => {
           if (Array.isArray(data)) {
+            // Only show configured sessions
+            const configuredData = data.filter((s: any) => s.isConfigured === 1);
             const now = new Date();
             const todayStr = now.toISOString().split('T')[0];
             const nowHHmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             let nextAssigned = false;
             
-            const calculated = data.map(session => {
+            const calculated = configuredData.map(session => {
               const startTime = session.startTime || (session.time || "00:00 - 00:00").split(" - ")[0] || "00:00";
               const endTime = session.endTime || (session.time || "00:00 - 23:59").split(" - ")[1] || "23:59";
               const sessionDateStr = session.date || "2099-12-31";
@@ -78,7 +80,7 @@ export default function JadwalPage() {
               return { 
                 ...session, 
                 rawDate: session.date,
-                status: !session.isConfigured ? "upcoming" : status, 
+                status: status, 
                 displayDate,
                 timeDisplay,
               };
