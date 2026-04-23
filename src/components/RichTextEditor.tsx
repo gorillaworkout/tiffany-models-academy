@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { useMemo } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamic import to avoid SSR issues
@@ -18,6 +18,8 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
+  const lastValueRef = useRef(value);
+  
   const modules = useMemo(() => ({
     toolbar: [
       [{ 'header': [2, 3, false] }],
@@ -28,19 +30,32 @@ export default function RichTextEditor({ value, onChange, placeholder, className
     ],
   }), []);
 
-  const formats = [
+  const formats = useMemo(() => [
     'header',
     'bold', 'italic', 'underline',
     'list', 'bullet',
     'link'
-  ];
+  ], []);
+
+  // Prevent infinite re-render: only call onChange when value actually changes
+  const handleChange = useCallback((newValue: string) => {
+    // React Quill emits '<p><br></p>' for empty content
+    const normalized = newValue === '<p><br></p>' ? '' : newValue;
+    if (normalized !== lastValueRef.current) {
+      lastValueRef.current = normalized;
+      onChange(normalized);
+    }
+  }, [onChange]);
+
+  // Keep ref in sync when parent value changes
+  lastValueRef.current = value;
 
   return (
     <div className={`rich-text-editor ${className || ''}`}>
       <ReactQuill
         theme="snow"
-        value={value}
-        onChange={onChange}
+        value={value || ''}
+        onChange={handleChange}
         modules={modules}
         formats={formats}
         placeholder={placeholder || "Write your content here..."}
