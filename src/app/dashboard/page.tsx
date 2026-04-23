@@ -191,9 +191,29 @@ export default function DashboardPage() {
              ? (parsed.role === 'ebook' ? 'E-Book Member' : 'Private Class') 
              : parsed.status === 'rejected' ? 'Rejected' : 'Pending',
          }));
-      } else if (parsed.batchId) {
+      } else if (parsed.role === 'class' || parsed.batchId) {
+         // Class user: fetch fresh batch_id from server (may have changed via transfer)
+         let currentBatchId = parsed.batchId;
+         
+         fetch('/api/users').then(r => r.json()).then(usersData => {
+           if (Array.isArray(usersData)) {
+             const me = usersData.find((u: any) => u.id === parsed.id);
+             if (me && me.batch_id && me.batch_id !== parsed.batchId) {
+               currentBatchId = me.batch_id;
+               // Update localStorage
+               const updated = { ...parsed, batchId: currentBatchId };
+               localStorage.setItem("tma_user", JSON.stringify(updated));
+             }
+           }
+           // Now load dashboard with the current batchId
+           loadClassDashboard(parsed, currentBatchId);
+         }).catch(() => {
+           loadClassDashboard(parsed, currentBatchId);
+         });
+
+         const loadClassDashboard = (parsed: any, batchId: string) => {
          // Fetch student status label
-         setUserBatchId(parsed.batchId);
+         setUserBatchId(batchId);
          setStudentStats(prev => ({
            ...prev,
            statusLabel: parsed.status === 'approved' ? 'Active Model' : parsed.status === 'rejected' ? 'Rejected' : 'Pending',
@@ -211,7 +231,7 @@ export default function DashboardPage() {
          }
 
          // Fetch jadwal for student's batch
-         fetch(`/api/jadwal?batchId=${parsed.batchId}`)
+         fetch(`/api/jadwal?batchId=${batchId}`)
             .then(r => r.json())
             .then(data => {
                if (Array.isArray(data)) {
@@ -297,7 +317,7 @@ export default function DashboardPage() {
             });
 
          // Fetch attendance for grade
-         fetch(`/api/attendance?batchId=${parsed.batchId}`)
+         fetch(`/api/attendance?batchId=${batchId}`)
            .then(r => r.json())
            .then(attData => {
              if (Array.isArray(attData) && attData.length > 0) {
@@ -329,7 +349,7 @@ export default function DashboardPage() {
            fetch('/api/studios').then(r => r.json())
          ]).then(([batchData, studioData]) => {
              if (Array.isArray(batchData)) {
-               const myBatch = batchData.find(b => b.id == parsed.batchId);
+               const myBatch = batchData.find(b => b.id == batchId);
                if (myBatch) {
                  setUserBatchName(myBatch.name || "");
                  // Find the studio name from studios list
@@ -341,7 +361,7 @@ export default function DashboardPage() {
                  }
                }
                // Store all batches for transfer (exclude current)
-               setTransferBatches(batchData.filter(b => b.id != parsed.batchId));
+               setTransferBatches(batchData.filter(b => b.id != batchId));
              }
            });
 
@@ -353,7 +373,8 @@ export default function DashboardPage() {
                setPendingTransfer(data[0]);
              }
            });
-      }
+      } // end loadClassDashboard
+    }
     }
     setIsMounted(true);
   }, []);
