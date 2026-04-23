@@ -33,25 +33,49 @@ export default function ModulPage() {
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
         
-        if (parsed.ebookPackageId && (parsed.role === 'ebook' || parsed.role === 'private')) {
-          // E-Book / Private user: fetch from ebook-modules
+        if (parsed.role === 'ebook' || parsed.role === 'private') {
+          // E-Book / Private user: always fetch fresh ebook_package_id from server
           setIsEbookUser(true);
-          fetch(`/api/ebook-modules?packageId=${parsed.ebookPackageId}`)
+          
+          // First get the user's current ebook_package_id from DB (in case admin assigned it after login)
+          fetch('/api/users')
             .then(r => r.json())
-            .then(data => {
-              if (Array.isArray(data)) {
-                setModuleCount(data.length || 16);
-                const mapped = data.map((d: any, i: number) => ({
-                  id: `0${i+1}`.slice(-2),
-                  title: d.title,
-                  description: d.description || "No description available yet.",
-                  category: "E-Book Content",
-                  status: "active",
-                  icon: BookText
-                }));
-                setModules(mapped);
+            .then(usersData => {
+              let packageId = parsed.ebookPackageId;
+              if (Array.isArray(usersData)) {
+                const me = usersData.find((u: any) => u.id === parsed.id);
+                if (me?.ebook_package_id) {
+                  packageId = me.ebook_package_id;
+                  // Update localStorage so next visit is faster
+                  const updated = { ...parsed, ebookPackageId: packageId };
+                  localStorage.setItem("tma_user", JSON.stringify(updated));
+                }
               }
-              setIsMounted(true);
+              
+              if (!packageId) {
+                // No package assigned yet
+                setModules([]);
+                setIsMounted(true);
+                return;
+              }
+              
+              return fetch(`/api/ebook-modules?packageId=${packageId}`)
+                .then(r => r.json())
+                .then(data => {
+                  if (Array.isArray(data)) {
+                    setModuleCount(data.length || 16);
+                    const mapped = data.map((d: any, i: number) => ({
+                      id: `0${i+1}`.slice(-2),
+                      title: d.title,
+                      description: d.description || "No description available yet.",
+                      category: "E-Book Content",
+                      status: "active",
+                      icon: BookText
+                    }));
+                    setModules(mapped);
+                  }
+                  setIsMounted(true);
+                });
             })
             .catch(() => setIsMounted(true));
         } else if (parsed.batchId) {
