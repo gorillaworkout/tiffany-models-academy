@@ -20,7 +20,8 @@ export async function POST(req: Request) {
     // Admin gets auto-approved, others are pending
     const status = role === 'admin' ? 'approved' : 'pending';
 
-    const batchId = data.batch || '';
+    // Use null for batch_id when not class role
+    const batchId = (role === 'class') ? (data.batch || '') : null;
     
     // Only require batch for class role
     if (role === 'class' && !batchId) {
@@ -28,8 +29,8 @@ export async function POST(req: Request) {
     }
 
     await d1Query(`
-      INSERT INTO member (batch_id, nama_lengkap, email, password, no_whatsapp, instagram, tinggi_badan, berat_badan, role, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO member (batch_id, nama_lengkap, email, password, no_whatsapp, instagram, tinggi_badan, berat_badan, role, status, alamat)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       batchId, 
       data.fullName || data.name, 
@@ -40,7 +41,8 @@ export async function POST(req: Request) {
       parseInt(data.height) || 0, 
       parseInt(data.weight) || 0, 
       role, 
-      status
+      status,
+      data.address || null
     ]);
 
     return NextResponse.json({ success: true, status: status });

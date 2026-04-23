@@ -47,7 +47,10 @@ export default function LoginPage() {
         batchId: data.user.batch_id,
         email: data.user.email,
         fullName: data.user.name,
-        role: data.user.role
+        role: data.user.role,
+        alamat: data.user.alamat || null,
+        ukuran_heels: data.user.ukuran_heels || null,
+        ukuran_baju: data.user.ukuran_baju || null,
       }));
       
       toast.success(data.user.role === 'admin' ? "Welcome back, Director!" : "Login successful!", { description: "Authenticating your credentials..." });
@@ -90,14 +93,14 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 lg:ml-[50%] min-h-screen flex items-center justify-center p-6 sm:p-12 relative">
+      <div className="w-full lg:w-1/2 lg:ml-[50%] min-h-screen flex items-center justify-center p-4 sm:p-6 relative">
         {/* Glow effects */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] pointer-events-none" />
         
         <div className="w-full max-w-sm relative z-10">
           
           {/* Header */}
-          <div className="mb-10 text-center lg:text-left">
+          <div className="mb-6 text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start gap-2 mb-6 lg:hidden">
               <Sparkles className="w-5 h-5 text-zinc-400" />
               <span className="font-serif italic tracking-widest text-sm text-zinc-400">TMA</span>
@@ -106,7 +109,7 @@ export default function LoginPage() {
             <p className="text-sm text-zinc-400">Enter your email and password to access your portal.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             
             <div className="space-y-2">
               <Label htmlFor="email" className="text-xs uppercase tracking-widest text-zinc-500">Email Address</Label>
@@ -155,7 +158,7 @@ export default function LoginPage() {
               )}
             </Button>
             
-            <div className="relative my-8">
+            <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-white/10"></div>
               </div>

@@ -32,6 +32,9 @@ export async function GET(req: Request) {
       m.tinggi_badan as height, 
       m.berat_badan as weight, 
       m.instagram as ig,
+      m.alamat,
+      m.ukuran_heels,
+      m.ukuran_baju,
       (
         SELECT COUNT(*) FROM absensi a WHERE a.member_id = m.id AND a.status = 'hadir'
       ) as attended_count,

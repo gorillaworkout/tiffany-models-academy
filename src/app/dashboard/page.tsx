@@ -26,6 +26,8 @@ import {
   ArrowRightLeft,
   AlertTriangle,
   X,
+  Ruler,
+  Shirt,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -137,6 +139,12 @@ export default function DashboardPage() {
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
   const [userBatchId, setUserBatchId] = useState("");
 
+  // Equipment state (class role)
+  const [equipmentHeels, setEquipmentHeels] = useState("");
+  const [equipmentBaju, setEquipmentBaju] = useState("");
+  const [equipmentSaved, setEquipmentSaved] = useState(false);
+  const [isSavingEquipment, setIsSavingEquipment] = useState(false);
+
   // Student dynamic data
   const [studentStats, setStudentStats] = useState({
     statusLabel: "Pending",
@@ -180,6 +188,17 @@ export default function DashboardPage() {
            ...prev,
            statusLabel: parsed.status === 'approved' ? 'Active Model' : parsed.status === 'rejected' ? 'Rejected' : 'Pending',
          }));
+
+         // Check equipment from localStorage
+         if (parsed.ukuran_heels && parsed.ukuran_baju) {
+           setEquipmentHeels(parsed.ukuran_heels);
+           setEquipmentBaju(parsed.ukuran_baju);
+           setEquipmentSaved(true);
+         } else if (parsed.ukuran_heels || parsed.ukuran_baju) {
+           setEquipmentHeels(parsed.ukuran_heels || "");
+           setEquipmentBaju(parsed.ukuran_baju || "");
+           setEquipmentSaved(!!(parsed.ukuran_heels && parsed.ukuran_baju));
+         }
 
          // Fetch jadwal for student's batch
          fetch(`/api/jadwal?batchId=${parsed.batchId}`)
@@ -655,6 +674,17 @@ export default function DashboardPage() {
                           }`}>
                             {u.role === 'class' ? 'Group Class' : u.role === 'ebook' ? 'E-Book' : u.role === 'private' ? 'Private' : u.role === 'admin' ? 'Director' : u.role || 'student'}
                           </span>
+                          {u.alamat && (
+                            <p className="text-xs text-zinc-600 mt-1.5 flex items-center gap-1">
+                              <MapPin className="w-3 h-3 shrink-0" /> {u.alamat}
+                            </p>
+                          )}
+                          {u.role === 'class' && (u.ukuran_heels || u.ukuran_baju) && (
+                            <p className="text-xs text-zinc-600 mt-1 flex items-center gap-2">
+                              {u.ukuran_heels && <span className="flex items-center gap-1"><Ruler className="w-3 h-3" /> Heels: {u.ukuran_heels}</span>}
+                              {u.ukuran_baju && <span className="flex items-center gap-1"><Shirt className="w-3 h-3" /> Outfit: {u.ukuran_baju}</span>}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center justify-between border-t border-white/5 pt-3">
@@ -1168,6 +1198,97 @@ export default function DashboardPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* EQUIPMENT DETAILS CARD - Only for class role users who haven't filled it */}
+      {userRole === "class" && !equipmentSaved && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 border border-white/10 bg-zinc-950/50 p-6"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 flex items-center justify-center border border-white/10 bg-white/5">
+              <Ruler className="w-5 h-5 text-zinc-300" />
+            </div>
+            <div>
+              <h3 className="text-lg font-serif">Complete Your Equipment Details</h3>
+              <p className="text-xs text-zinc-500">We need your heels and outfit size for class preparation.</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block">Heels Size</label>
+              <input
+                type="text"
+                value={equipmentHeels}
+                onChange={e => setEquipmentHeels(e.target.value)}
+                placeholder="e.g. 37, 38, 39"
+                className="w-full bg-zinc-900/50 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block">Outfit Size</label>
+              <input
+                type="text"
+                value={equipmentBaju}
+                onChange={e => setEquipmentBaju(e.target.value)}
+                placeholder="e.g. S, M, L, XL"
+                className="w-full bg-zinc-900/50 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30"
+              />
+            </div>
+          </div>
+          <button
+            disabled={isSavingEquipment || (!equipmentHeels && !equipmentBaju)}
+            onClick={async () => {
+              if (!equipmentHeels || !equipmentBaju) {
+                toast.error("Please fill in both fields");
+                return;
+              }
+              setIsSavingEquipment(true);
+              try {
+                const savedUser = JSON.parse(localStorage.getItem("tma_user") || "{}");
+                const res = await fetch('/api/users/equipment', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    memberId: savedUser.id,
+                    ukuran_heels: equipmentHeels,
+                    ukuran_baju: equipmentBaju,
+                  })
+                });
+                const data = await res.json();
+                if (data.success) {
+                  // Update localStorage
+                  const updated = { ...savedUser, ukuran_heels: equipmentHeels, ukuran_baju: equipmentBaju };
+                  localStorage.setItem("tma_user", JSON.stringify(updated));
+                  setEquipmentSaved(true);
+                  toast.success("Equipment details saved!");
+                } else {
+                  toast.error(data.error || "Failed to save");
+                }
+              } catch {
+                toast.error("An error occurred");
+              }
+              setIsSavingEquipment(false);
+            }}
+            className="px-6 py-2.5 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-zinc-200 disabled:opacity-30 flex items-center gap-2 transition-all"
+          >
+            {isSavingEquipment ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : "Save Equipment Details"}
+          </button>
+        </motion.div>
+      )}
+
+      {/* EQUIPMENT SAVED INFO */}
+      {userRole === "class" && equipmentSaved && (
+        <div className="mb-8 flex items-center gap-4 text-xs text-zinc-500">
+          <div className="flex items-center gap-1.5">
+            <Ruler className="w-3.5 h-3.5" /> Heels: <span className="text-white font-medium">{equipmentHeels}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Shirt className="w-3.5 h-3.5" /> Outfit: <span className="text-white font-medium">{equipmentBaju}</span>
+          </div>
+        </div>
+      )}
 
       <motion.div
         variants={containerVariants}

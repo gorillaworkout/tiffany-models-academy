@@ -55,7 +55,8 @@ export default function RegisterPage() {
     height: "",
     weight: "",
     branch: "",
-    batch: ""
+    batch: "",
+    address: ""
   });
 
   const [studios, setStudios] = useState<any[]>([]);
@@ -271,7 +272,17 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ROW 3: Height & Weight */}
+            {/* ROW 3: Address (full width) */}
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-xs uppercase tracking-widest text-zinc-500">Address</Label>
+              <Input 
+                id="address" placeholder="Jl. Sudirman No. 1, Jakarta"
+                className="bg-zinc-900/50 border-white/10 h-12 px-4 text-sm focus-visible:ring-1 focus-visible:ring-white/30 rounded-none transition-all"
+                value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})}
+              />
+            </div>
+
+            {/* ROW 4: Height & Weight */}
             <div className="grid grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="height" className="text-xs uppercase tracking-widest text-zinc-500">Height (cm)</Label>
@@ -291,7 +302,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ROW 4: Branch & Batch - ONLY FOR CLASS PLAN */}
+            {/* ROW 5: Branch & Batch - ONLY FOR CLASS PLAN */}
             {needsBatch && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="space-y-2">
@@ -327,7 +338,7 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {/* ROW 5: Password */}
+            {/* ROW 6: Password */}
             <div className="space-y-2 pt-2 border-t border-white/5 mt-6">
               <Label htmlFor="password" className="text-xs uppercase tracking-widest text-zinc-500">Password</Label>
               <div className="relative">

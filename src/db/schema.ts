@@ -47,7 +47,7 @@ export const jadwal = sqliteTable("jadwal", {
 //   - private: Private Class, curriculum/modules page only, no batch/branch needed
 export const member = sqliteTable("member", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  batchId: integer("batch_id").references(() => batch.id).notNull(), // empty string for ebook/private
+  batchId: integer("batch_id"), // nullable, no FK constraint — null for ebook/private
   namaLengkap: text("nama_lengkap").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(), // Akan kita hash (acak) nanti biar aman
@@ -58,6 +58,9 @@ export const member = sqliteTable("member", {
   role: text("role").notNull().default("class"), // admin, ebook, class, private
   status: text("status").notNull().default("pending"), // pending, approved, rejected
   tanggalDaftar: text("tanggal_daftar").default(sql`CURRENT_TIMESTAMP`),
+  alamat: text("alamat"), // address
+  ukuranHeels: text("ukuran_heels"), // heels size
+  ukuranBaju: text("ukuran_baju"), // clothes/outfit size
 });
 
 // 5. Tabel Studio/Location
