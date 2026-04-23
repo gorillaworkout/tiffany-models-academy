@@ -80,7 +80,7 @@ export default function RegisterPage() {
   }, []);
 
   const needsBatch = selectedPlan === "class";
-  const needsPackage = selectedPlan === "ebook" || selectedPlan === "private";
+  const needsPackage = selectedPlan === "ebook";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

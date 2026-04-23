@@ -28,9 +28,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Silakan pilih batch terlebih dahulu." }, { status: 400 });
     }
 
-    // For ebook/private roles, require ebookPackageId
-    const ebookPackageId = (role === 'ebook' || role === 'private') ? (data.ebookPackageId || null) : null;
-    if ((role === 'ebook' || role === 'private') && !ebookPackageId) {
+    // For ebook role, require ebookPackageId. Private gets assigned manually by admin.
+    const ebookPackageId = (role === 'ebook') ? (data.ebookPackageId || null) : null;
+    if (role === 'ebook' && !ebookPackageId) {
       return NextResponse.json({ success: false, error: "Please select an e-book package." }, { status: 400 });
     }
 
