@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'Zzr1rL39y23Zqs5a8NZ7zeetJgvkXPY-l6n4pg3eKmI',
+    google: 'bVZmGxIgVutWwWdBISpnW9Yym3ZCsGhdiAbb20s3-w4',
   },
   alternates: {
     canonical: 'https://tiffannymodelsacademy.com',
