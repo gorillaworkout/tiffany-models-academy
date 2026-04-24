@@ -4,6 +4,7 @@ export const metadata = {
   openGraph: {
     title: 'Daftar Sekarang — Tiffanny Models Academy',
     description: 'Bergabung dengan TMA. E-Book, Group Class, atau Private Class.',
+    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630 }],
   },
   alternates: { canonical: 'https://tiffannymodelsacademy.com/register' },
 };

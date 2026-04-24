@@ -131,10 +131,8 @@ export default function RegisterPage() {
          toast.success("Welcome, Director!", { description: "Your admin account is ready." });
          setTimeout(() => router.push('/dashboard'), 1500);
       } else {
-         // Member needs approval
-         toast.success("Registration Sent", { description: "Please wait for admin approval before logging in!" });
-         // DO NOT LOG IN. Redirect to login page instead
-         setTimeout(() => router.push('/login'), 2000);
+         // Member needs approval — redirect to success page
+         router.push('/register/success');
       }
     } catch (e: any) {
        setIsLoading(false);
@@ -160,7 +158,7 @@ export default function RegisterPage() {
         
         <div className="relative z-10 flex items-center gap-3">
           <Sparkles className="w-5 h-5 text-white" />
-          <h2 className="text-2xl font-serif italic tracking-widest text-white">TMA</h2>
+          <a href="/" className="text-2xl font-serif italic tracking-widest text-white hover:text-zinc-300 transition-colors">TMA</a>
         </div>
 
         <div className="relative z-10 max-w-lg mb-8">
@@ -185,7 +183,7 @@ export default function RegisterPage() {
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4 lg:hidden">
               <Sparkles className="w-5 h-5 text-zinc-400" />
-              <span className="font-serif italic tracking-widest text-sm text-zinc-400">TMA</span>
+              <a href="/" className="font-serif italic tracking-widest text-sm text-zinc-400 hover:text-white transition-colors">TMA</a>
             </div>
             <h2 className="text-3xl font-serif mb-2">Create Account</h2>
             <p className="text-sm text-zinc-400">Choose your plan and enter your details to join.</p>

@@ -80,7 +80,7 @@ export default function LoginPage() {
         
         <div className="relative z-10 flex items-center gap-3">
           <Sparkles className="w-5 h-5 text-white" />
-          <h2 className="text-2xl font-serif italic tracking-widest text-white">TMA</h2>
+          <a href="/" className="text-2xl font-serif italic tracking-widest text-white hover:text-zinc-300 transition-colors">TMA</a>
         </div>
 
         <div className="relative z-10 max-w-lg mb-8">
@@ -105,7 +105,7 @@ export default function LoginPage() {
           <div className="mb-6 text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start gap-2 mb-6 lg:hidden">
               <Sparkles className="w-5 h-5 text-zinc-400" />
-              <span className="font-serif italic tracking-widest text-sm text-zinc-400">TMA</span>
+              <a href="/" className="font-serif italic tracking-widest text-sm text-zinc-400 hover:text-white transition-colors">TMA</a>
             </div>
             <h2 className="text-3xl lg:text-4xl font-serif mb-3">Sign In</h2>
             <p className="text-sm text-zinc-400">Enter your email and password to access your portal.</p>

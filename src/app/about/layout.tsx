@@ -4,7 +4,7 @@ export const metadata = {
   openGraph: {
     title: 'Tentang Tiffanny Models Academy',
     description: 'Akademi model profesional terbaik di Indonesia. Pelatihan catwalk, foto posing, dan personal branding.',
-    images: [{ url: '/images/tma-group.jpg' }],
+    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630 }],
   },
   alternates: { canonical: 'https://tiffannymodelsacademy.com/about' },
 };

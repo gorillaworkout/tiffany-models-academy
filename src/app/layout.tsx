@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://tiffannymodelsacademy.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://tiffany-models-academy.vercel.app'),
   title: {
     default: 'Tiffany Models Academy — Sekolah Model Profesional di Indonesia',
     template: '%s | Tiffany Models Academy',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     description: 'Akademi model profesional di Jakarta & Bandung. Kurikulum 16 modul, pelatihan catwalk, foto posing, personal branding. Kelas reguler, private, dan e-book. Daftar sekarang!',
     images: [
       {
-        url: '/images/tma-group.jpg',
+        url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Tiffanny Models Academy — Sekolah Model Profesional di Indonesia',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Tiffanny Models Academy — Sekolah Model Profesional di Indonesia',
     description: 'Akademi model profesional di Jakarta & Bandung. Daftar kursus modeling sekarang!',
-    images: ['/images/tma-group.jpg'],
+    images: ['/images/og-image.jpg'],
   },
   robots: {
     index: true,

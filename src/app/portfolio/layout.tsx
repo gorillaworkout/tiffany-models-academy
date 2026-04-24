@@ -4,7 +4,7 @@ export const metadata = {
   openGraph: {
     title: 'Portfolio Model — Tiffanny Models Academy',
     description: 'Galeri foto model TMA. Runway, editorial, behind the scenes.',
-    images: [{ url: '/images/tma-magazine.jpg' }],
+    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630 }],
   },
   alternates: { canonical: 'https://tiffannymodelsacademy.com/portfolio' },
 };

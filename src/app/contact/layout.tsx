@@ -4,6 +4,7 @@ export const metadata = {
   openGraph: {
     title: 'Hubungi Tiffanny Models Academy',
     description: 'Kontak TMA untuk informasi kursus modeling. Jakarta & Bandung.',
+    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630 }],
   },
   alternates: { canonical: 'https://tiffannymodelsacademy.com/contact' },
 };
