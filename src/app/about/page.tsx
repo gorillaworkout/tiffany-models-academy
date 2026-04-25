@@ -183,8 +183,8 @@ export default function AboutPage() {
             {/* Secondary image */}
             <div className="relative mt-10 overflow-hidden border border-white/10">
               <Image
-                src="/images/tma-blazer-editorial.jpg"
-                alt="Editorial fashion model TMA dengan gaun putih dan blazer hitam - profesional dan elegan"
+                src="/images/tma-rose.jpg"
+                alt="Nadira Tiffanny - Founder Tiffanny Models Academy, portrait elegan dengan bunga mawar"
                 width={600}
                 height={700}
                 className="w-full h-[500px] object-cover object-top grayscale hover:grayscale-0 transition-all duration-700"
