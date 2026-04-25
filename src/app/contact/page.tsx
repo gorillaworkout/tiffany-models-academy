@@ -72,8 +72,8 @@ export default function ContactPage() {
       <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/tma-silver-skirt.jpg"
-            alt="Model runway fashion Tiffanny Models Academy - hubungi kami untuk informasi pendaftaran"
+            src="/images/tma-group.jpg"
+            alt="Tim model Tiffanny Models Academy - hubungi kami untuk informasi pendaftaran"
             fill
             className="object-cover grayscale opacity-40"
             priority
