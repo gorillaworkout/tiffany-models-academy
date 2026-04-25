@@ -33,7 +33,7 @@ const galleryImages = [
   },
   {
     src: "/images/tma-group.jpg",
-    alt: "Sesi pelatihan grup model di studio Tiffanny Models Academy",
+    alt: "Sesi pelatihan grup model di studio Tiffanny Models Academy Jakarta",
     category: "Behind the Scenes",
     span: "",
   },
@@ -44,28 +44,58 @@ const galleryImages = [
     span: "row-span-2",
   },
   {
-    src: "/images/tma-sunglasses.jpg",
-    alt: "Fashion shoot model profesional Tiffanny Models Academy di runway",
-    category: "Runway",
-    span: "",
+    src: "/images/tma-balqis-magazine.jpg",
+    alt: "Cover majalah TMA Magazine edisi Balqis Circle 4 - model profesional Indonesia",
+    category: "Editorial",
+    span: "row-span-2",
   },
   {
-    src: "/images/tma-magazine.jpg",
-    alt: "Cover story model TMA untuk majalah fashion profesional",
+    src: "/images/tma-hijab-portrait.jpg",
+    alt: "Portrait model hijab profesional dengan outfit hitam elegan - Tiffanny Models Academy",
     category: "Editorial",
     span: "",
   },
   {
-    src: "/images/tma-group.jpg",
-    alt: "Behind the scenes pelatihan catwalk di akademi model TMA",
+    src: "/images/tma-silver-skirt.jpg",
+    alt: "Model runway fashion dengan jaket kulit dan rok silver pleated - TMA fashion show",
+    category: "Runway",
+    span: "",
+  },
+  {
+    src: "/images/tma-lailatusyifa-magazine.jpg",
+    alt: "Cover majalah TMA Magazine edisi Lailatusyifa Circle 2 - editorial fashion Indonesia",
+    category: "Editorial",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-hijab-fashion.jpg",
+    alt: "Model hijab fashion editorial dengan outfit maroon dan vest abu-abu - TMA",
+    category: "Editorial",
+    span: "",
+  },
+  {
+    src: "/images/tma-aleycia-award.jpg",
+    alt: "Aleycia Benita 2nd Runner Up Teen Star Indonesia 2025 - prestasi alumni TMA",
     category: "Behind the Scenes",
     span: "",
   },
   {
-    src: "/images/tma-rose.jpg",
-    alt: "Portrait model profesional Tiffanny Models Academy untuk portfolio",
-    category: "Runway",
+    src: "/images/tma-sitting-poses.jpg",
+    alt: "Pelatihan sitting poses dan teknik berpose duduk di studio Tiffanny Models Academy",
+    category: "Behind the Scenes",
     span: "",
+  },
+  {
+    src: "/images/tma-blazer-editorial.jpg",
+    alt: "Editorial fashion model TMA dengan gaun putih dan blazer hitam elegan",
+    category: "Editorial",
+    span: "",
+  },
+  {
+    src: "/images/tma-maudy-magazine.jpg",
+    alt: "Cover majalah TMA Magazine edisi Maudy Selany Circle 4 - model profesional",
+    category: "Editorial",
+    span: "row-span-2",
   },
 ];
 
@@ -166,7 +196,7 @@ export default function PortfolioPage() {
         </motion.div>
       </section>
 
-      {/* Video Section / Coming Soon */}
+      {/* Video Showcase */}
       <section className="py-24 px-6 md:px-12 bg-zinc-950 border-t border-white/5">
         <motion.div
           initial="hidden"
@@ -176,15 +206,33 @@ export default function PortfolioPage() {
           className="max-w-4xl mx-auto text-center"
         >
           <p className="text-xs uppercase tracking-widest text-red-500 mb-4">
-            Coming Soon
+            Training Highlights
           </p>
           <h2 className="text-3xl md:text-5xl font-serif mb-6">
             Video <span className="italic text-zinc-500">showcase.</span>
           </h2>
           <p className="text-sm text-zinc-400 font-light mb-10 max-w-xl mx-auto">
-            We&apos;re preparing an exclusive collection of runway videos, behind-the-scenes
-            content, and training highlights. Stay tuned.
+            Watch our models perfect their craft — from sitting poses to editorial techniques,
+            captured behind the scenes at TMA studios.
           </p>
+          <div className="relative max-w-2xl mx-auto mb-10 border border-white/10 overflow-hidden">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/images/tma-sitting-poses.jpg"
+              className="w-full aspect-video object-cover"
+            >
+              <source src="/videos/tma-sitting-poses.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+              <p className="text-xs uppercase tracking-widest text-white/70">
+                Sitting Poses Training — Behind the Scenes
+              </p>
+            </div>
+          </div>
           <a
             href="https://www.instagram.com/tiffannymodelsacademy/"
             target="_blank"

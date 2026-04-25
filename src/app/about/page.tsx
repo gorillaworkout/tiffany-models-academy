@@ -180,6 +180,17 @@ export default function AboutPage() {
                 careers and lives.
               </p>
             </div>
+            {/* Secondary image */}
+            <div className="relative mt-10 overflow-hidden border border-white/10">
+              <Image
+                src="/images/tma-blazer-editorial.jpg"
+                alt="Editorial fashion model TMA dengan gaun putih dan blazer hitam - profesional dan elegan"
+                width={600}
+                height={400}
+                className="w-full h-[300px] object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
           </motion.div>
 
           <motion.div
@@ -214,8 +225,18 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-24 px-6 md:px-12 bg-black border-t border-white/5">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-24 px-6 md:px-12 bg-black border-t border-white/5 relative overflow-hidden">
+        {/* Subtle background image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/tma-hijab-fashion.jpg"
+            alt=""
+            fill
+            className="object-cover grayscale opacity-[0.04]"
+            sizes="100vw"
+          />
+        </div>
+        <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"

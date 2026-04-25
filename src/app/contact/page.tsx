@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { MapPin, MessageCircle, Mail, Camera, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -68,12 +69,23 @@ export default function ContactPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-16 px-6 md:px-12">
+      <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/tma-silver-skirt.jpg"
+            alt="Model runway fashion Tiffanny Models Academy - hubungi kami untuk informasi pendaftaran"
+            fill
+            className="object-cover grayscale opacity-40"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/40" />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="max-w-6xl mx-auto text-center"
+          className="relative z-10 max-w-6xl mx-auto text-center px-6"
         >
           <p className="text-xs uppercase tracking-widest text-red-500 mb-4">
             Contact

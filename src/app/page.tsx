@@ -110,8 +110,8 @@ export default function HomePage() {
         <div className="absolute inset-0 grid grid-cols-2 lg:grid-cols-4 h-full w-full z-0 opacity-40">
           <div className="relative h-full overflow-hidden border-r border-white/5">
             <Image
-              src="/images/tma-magazine.jpg"
-              alt="Model Tiffanny Models Academy dalam pemotretan editorial majalah fashion"
+              src="/images/tma-hijab-portrait.jpg"
+              alt="Portrait model hijab profesional Tiffanny Models Academy dengan outfit hitam elegan"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
               priority
@@ -119,8 +119,8 @@ export default function HomePage() {
           </div>
           <div className="relative h-full overflow-hidden border-r border-white/5">
             <Image
-              src="/images/tma-sunglasses.jpg"
-              alt="Model TMA berpose dengan sunglasses untuk fashion editorial"
+              src="/images/tma-blazer-editorial.jpg"
+              alt="Model TMA editorial fashion dengan gaun putih dan blazer hitam"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
               priority
@@ -128,16 +128,16 @@ export default function HomePage() {
           </div>
           <div className="relative h-full overflow-hidden border-r border-white/5 hidden lg:block">
             <Image
-              src="/images/tma-group.jpg"
-              alt="Grup model Tiffanny Models Academy sesi pelatihan bersama di studio Jakarta"
+              src="/images/tma-hijab-fashion.jpg"
+              alt="Model hijab fashion editorial Tiffanny Models Academy dengan outfit maroon"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
             />
           </div>
           <div className="relative h-full overflow-hidden hidden lg:block">
             <Image
-              src="/images/tma-rose.jpg"
-              alt="Model TMA portrait elegan dengan bunga mawar untuk editorial fashion"
+              src="/images/tma-silver-skirt.jpg"
+              alt="Model runway fashion TMA dengan jaket kulit dan rok silver pleated"
               fill
               className="object-cover grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
             />
@@ -246,8 +246,8 @@ export default function HomePage() {
           >
             <div className="absolute -inset-4 border border-white/10" />
             <Image
-              src="/images/tma-magazine.jpg"
-              alt="Tiffanny Models Academy featured in fashion magazine editorial cover"
+              src="/images/tma-maudy-magazine.jpg"
+              alt="Cover majalah TMA Magazine edisi Maudy Selany - Tiffanny Models Academy"
               width={600}
               height={800}
               className="w-full h-[600px] object-cover grayscale"
