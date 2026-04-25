@@ -215,14 +215,14 @@ export default function PortfolioPage() {
             Watch our models perfect their craft — from sitting poses to editorial techniques,
             captured behind the scenes at TMA studios.
           </p>
-          <div className="relative max-w-2xl mx-auto mb-10 border border-white/10 overflow-hidden">
+          <div className="relative max-w-sm mx-auto mb-10 border border-white/10 overflow-hidden">
             <video
               autoPlay
               muted
               loop
               playsInline
               poster="/images/tma-sitting-poses.jpg"
-              className="w-full aspect-video object-cover"
+              className="w-full aspect-[9/16] object-cover"
             >
               <source src="/videos/tma-sitting-poses.mp4" type="video/mp4" />
               Your browser does not support the video tag.

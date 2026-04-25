@@ -246,8 +246,8 @@ export default function HomePage() {
           >
             <div className="absolute -inset-4 border border-white/10" />
             <Image
-              src="/images/tma-maudy-magazine.jpg"
-              alt="Cover majalah TMA Magazine edisi Maudy Selany - Tiffanny Models Academy"
+              src="/images/tma-magazine.jpg"
+              alt="Tiffanny Models Academy featured in fashion magazine editorial cover"
               width={600}
               height={800}
               className="w-full h-[600px] object-cover grayscale"

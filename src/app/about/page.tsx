@@ -186,8 +186,8 @@ export default function AboutPage() {
                 src="/images/tma-blazer-editorial.jpg"
                 alt="Editorial fashion model TMA dengan gaun putih dan blazer hitam - profesional dan elegan"
                 width={600}
-                height={400}
-                className="w-full h-[300px] object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                height={700}
+                className="w-full h-[500px] object-cover object-top grayscale hover:grayscale-0 transition-all duration-700"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
