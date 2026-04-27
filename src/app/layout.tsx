@@ -15,22 +15,29 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://tiffany-models-academy.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://tiffannymodelsacademy.com'),
   title: {
-    default: 'Tiffany Models Academy — Sekolah Model Profesional di Indonesia',
-    template: '%s | Tiffany Models Academy',
+    default: 'Tiffanny Models Academy — Sekolah Model Profesional Jakarta Selatan & Bintaro',
+    template: '%s | Tiffanny Models Academy',
   },
-  description: 'Tiffanny Models Academy (TMA) adalah akademi model profesional terbaik di Jakarta Selatan & Bintaro. Kursus modeling, catwalk, foto posing, personal branding. Daftar sekarang! Professional modeling academy in Indonesia.',
+  description: 'Tiffanny Models Academy (TMA) adalah akademi model profesional terbaik di Jakarta Selatan & Bintaro. Kursus modeling, catwalk, foto posing, personal branding. Kelas reguler, private, e-book. Daftar sekarang!',
   keywords: [
-    'modeling academy', 'sekolah model', 'kursus model', 'model Jakarta Selatan', 'model Bintaro',
+    'modeling academy', 'sekolah model', 'kursus model',
+    'model Jakarta Selatan', 'model Bintaro', 'model Tangerang Selatan',
+    'model Jakarta', 'model Indonesia',
     'belajar jadi model', 'catwalk training', 'runway training', 'modeling class',
     'akademi model Indonesia', 'kelas model hijab', 'hijab model academy',
     'foto posing', 'personal branding model', 'modeling school Indonesia',
-    'TMA', 'Tiffanny Models Academy', 'kursus catwalk', 'sekolah modeling',
-    'model profesional', 'fashion model Indonesia', 'model training Jakarta',
-    'model training Bintaro', 'kelas modeling pemula', 'private class model',
+    'TMA', 'Tiffanny Models Academy', 'Tiffany Models Academy',
+    'kursus catwalk', 'sekolah modeling', 'kursus modeling Jakarta',
+    'model profesional', 'fashion model Indonesia',
+    'model training Jakarta Selatan', 'model training Bintaro',
+    'kelas modeling pemula', 'private class model',
     'e-book modeling', 'buku panduan model', 'tips menjadi model',
     'model hijab Indonesia', 'modeling academy near me', 'model academy terbaik',
+    'kursus model terdekat', 'sekolah model Jakarta', 'les model',
+    'modeling Jakarta Selatan', 'modeling Bintaro', 'modeling Tangerang',
+    'academy model Indonesia', 'pelatihan model profesional',
   ],
   authors: [{ name: 'Tiffanny Models Academy' }],
   creator: 'Tiffanny Models Academy',
@@ -41,20 +48,20 @@ export const metadata: Metadata = {
     alternateLocale: 'en_US',
     url: 'https://tiffannymodelsacademy.com',
     siteName: 'Tiffanny Models Academy',
-    title: 'Tiffanny Models Academy — Sekolah Model Profesional #1 di Indonesia',
+    title: 'Tiffanny Models Academy — Sekolah Model Profesional #1 di Jakarta Selatan & Bintaro',
     description: 'Akademi model profesional di Jakarta Selatan & Bintaro. Kurikulum 16 modul, pelatihan catwalk, foto posing, personal branding. Kelas reguler, private, dan e-book. Daftar sekarang!',
     images: [
       {
         url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Tiffanny Models Academy — Sekolah Model Profesional di Indonesia',
+        alt: 'Tiffanny Models Academy — Sekolah Model Profesional di Jakarta Selatan & Bintaro',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tiffanny Models Academy — Sekolah Model Profesional di Indonesia',
+    title: 'Tiffanny Models Academy — Sekolah Model Jakarta Selatan & Bintaro',
     description: 'Akademi model profesional di Jakarta Selatan & Bintaro. Daftar kursus modeling sekarang!',
     images: ['/images/og-image.jpg'],
   },
@@ -76,9 +83,12 @@ export const metadata: Metadata = {
     canonical: 'https://tiffannymodelsacademy.com',
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
     apple: '/apple-touch-icon.png',
   },
+  manifest: '/manifest.json',
   category: 'education',
 };
 
