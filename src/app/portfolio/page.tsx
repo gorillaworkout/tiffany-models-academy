@@ -121,6 +121,12 @@ const galleryImages = [
     category: "Editorial",
     span: "row-span-2",
   },
+  {
+    src: "/images/tma-balqis-izah.jpg",
+    alt: "Balqis Izah — 25yo, 156cm, 46kg, Hijab — Portfolio model profesional TMA",
+    category: "Editorial",
+    span: "row-span-2",
+  },
 ];
 
 export default function PortfolioPage() {
