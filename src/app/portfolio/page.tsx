@@ -115,6 +115,12 @@ const galleryImages = [
     category: "Editorial",
     span: "row-span-2",
   },
+  {
+    src: "/images/tma-gabriella-ayu.jpg",
+    alt: "Gabriella Ayu Bastari — 23yo, 170cm, 48kg — Portfolio model profesional TMA",
+    category: "Editorial",
+    span: "row-span-2",
+  },
 ];
 
 export default function PortfolioPage() {
