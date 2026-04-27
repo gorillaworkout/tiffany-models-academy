@@ -54,11 +54,11 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src="/images/tma-logo.png"
+              src="/images/tma-logo-dark.png"
               alt="TMA Logo"
-              width={120}
-              height={48}
-              className="h-12 w-auto invert brightness-200"
+              width={140}
+              height={56}
+              className="h-14 w-auto"
               priority
             />
           </Link>

@@ -19,11 +19,11 @@ export default function Footer() {
           {/* About TMA */}
           <div>
             <Image
-              src="/images/tma-logo.png"
+              src="/images/tma-logo-dark.png"
               alt="TMA Logo"
-              width={160}
-              height={64}
-              className="h-16 w-auto invert brightness-200"
+              width={200}
+              height={80}
+              className="h-20 w-auto"
             />
             <div className="w-8 h-[2px] bg-red-500 mb-6" />
             <p className="text-sm text-zinc-400 font-light leading-relaxed">
