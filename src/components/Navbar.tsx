@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Camera } from "lucide-react";
@@ -51,10 +52,15 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <Link href="/" className="flex flex-col">
-            <span className="font-serif italic tracking-widest text-2xl">
-              TMA
-            </span>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/images/tma-logo.jpg"
+              alt="TMA Logo"
+              width={48}
+              height={48}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Nav */}

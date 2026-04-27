@@ -20,15 +20,15 @@ export const metadata: Metadata = {
     default: 'Tiffany Models Academy — Sekolah Model Profesional di Indonesia',
     template: '%s | Tiffany Models Academy',
   },
-  description: 'Tiffanny Models Academy (TMA) adalah akademi model profesional terbaik di Jakarta & Bandung. Kursus modeling, catwalk, foto posing, personal branding. Daftar sekarang! Professional modeling academy in Indonesia.',
+  description: 'Tiffanny Models Academy (TMA) adalah akademi model profesional terbaik di Jakarta Selatan & Bintaro. Kursus modeling, catwalk, foto posing, personal branding. Daftar sekarang! Professional modeling academy in Indonesia.',
   keywords: [
-    'modeling academy', 'sekolah model', 'kursus model', 'model Jakarta', 'model Bandung',
+    'modeling academy', 'sekolah model', 'kursus model', 'model Jakarta Selatan', 'model Bintaro',
     'belajar jadi model', 'catwalk training', 'runway training', 'modeling class',
     'akademi model Indonesia', 'kelas model hijab', 'hijab model academy',
     'foto posing', 'personal branding model', 'modeling school Indonesia',
     'TMA', 'Tiffanny Models Academy', 'kursus catwalk', 'sekolah modeling',
     'model profesional', 'fashion model Indonesia', 'model training Jakarta',
-    'model training Bandung', 'kelas modeling pemula', 'private class model',
+    'model training Bintaro', 'kelas modeling pemula', 'private class model',
     'e-book modeling', 'buku panduan model', 'tips menjadi model',
     'model hijab Indonesia', 'modeling academy near me', 'model academy terbaik',
   ],
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     url: 'https://tiffannymodelsacademy.com',
     siteName: 'Tiffanny Models Academy',
     title: 'Tiffanny Models Academy — Sekolah Model Profesional #1 di Indonesia',
-    description: 'Akademi model profesional di Jakarta & Bandung. Kurikulum 16 modul, pelatihan catwalk, foto posing, personal branding. Kelas reguler, private, dan e-book. Daftar sekarang!',
+    description: 'Akademi model profesional di Jakarta Selatan & Bintaro. Kurikulum 16 modul, pelatihan catwalk, foto posing, personal branding. Kelas reguler, private, dan e-book. Daftar sekarang!',
     images: [
       {
         url: '/images/og-image.jpg',
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Tiffanny Models Academy — Sekolah Model Profesional di Indonesia',
-    description: 'Akademi model profesional di Jakarta & Bandung. Daftar kursus modeling sekarang!',
+    description: 'Akademi model profesional di Jakarta Selatan & Bintaro. Daftar kursus modeling sekarang!',
     images: ['/images/og-image.jpg'],
   },
   robots: {

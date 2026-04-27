@@ -97,6 +97,24 @@ const galleryImages = [
     category: "Editorial",
     span: "row-span-2",
   },
+  {
+    src: "/images/tma-fadia-alya.jpg",
+    alt: "Fadia Alya — 25yo, 160cm, 47kg — Portfolio model profesional TMA",
+    category: "Editorial",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-trinity-venus.jpg",
+    alt: "Trinity Venus Sutrisno — 20yo, 165cm, 46kg — Portfolio model profesional TMA",
+    category: "Editorial",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-maudy-sellany.jpg",
+    alt: "Maudy Sellany — 22yo, 155cm, 44kg — Portfolio model profesional TMA",
+    category: "Editorial",
+    span: "row-span-2",
+  },
 ];
 
 export default function PortfolioPage() {
@@ -196,7 +214,7 @@ export default function PortfolioPage() {
         </motion.div>
       </section>
 
-      {/* Video Showcase */}
+      {/* CTA */}
       <section className="py-24 px-6 md:px-12 bg-zinc-950 border-t border-white/5">
         <motion.div
           initial="hidden"
@@ -206,35 +224,17 @@ export default function PortfolioPage() {
           className="max-w-4xl mx-auto text-center"
         >
           <p className="text-xs uppercase tracking-widest text-red-500 mb-4">
-            Training Highlights
+            Follow Us
           </p>
           <h2 className="text-3xl md:text-5xl font-serif mb-6">
-            Video <span className="italic text-zinc-500">showcase.</span>
+            See more on <span className="italic text-zinc-500">social.</span>
           </h2>
           <p className="text-sm text-zinc-400 font-light mb-10 max-w-xl mx-auto">
-            Watch our models perfect their craft — from sitting poses to editorial techniques,
-            captured behind the scenes at TMA studios.
+            Follow our journey on social media for behind-the-scenes content,
+            training highlights, and model portfolios.
           </p>
-          <div className="relative max-w-sm mx-auto mb-10 border border-white/10 overflow-hidden">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster="/images/tma-sitting-poses.jpg"
-              className="w-full aspect-[9/16] object-cover"
-            >
-              <source src="/videos/tma-sitting-poses.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-              <p className="text-xs uppercase tracking-widest text-white/70">
-                Sitting Poses Training — Behind the Scenes
-              </p>
-            </div>
-          </div>
           <a
-            href="https://www.instagram.com/tiffannymodelsacademy/"
+            href="https://www.instagram.com/tiffannymodelsacademy"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 px-8 py-4 border border-white/20 text-white hover:bg-white/10 text-xs uppercase tracking-widest font-bold transition-all"

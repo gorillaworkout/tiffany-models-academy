@@ -170,7 +170,7 @@ export default function AboutPage() {
               <p>
                 What started as a passion for fashion and empowerment has grown
                 into one of Indonesia&apos;s most respected modeling academies, with
-                branches in Jakarta and Bandung serving hundreds of aspiring
+                studios in Jakarta Selatan and Bintaro serving hundreds of aspiring
                 models.
               </p>
               <p>

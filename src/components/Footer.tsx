@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Camera, MessageCircle, Play, Video } from "lucide-react";
 
 const quickLinks = [
@@ -17,7 +18,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
           {/* About TMA */}
           <div>
-            <h3 className="font-serif italic text-2xl mb-4">TMA</h3>
+            <Image
+              src="/images/tma-logo.jpg"
+              alt="TMA Logo"
+              width={80}
+              height={80}
+              className="h-16 w-auto mb-4"
+            />
             <div className="w-8 h-[2px] bg-red-500 mb-6" />
             <p className="text-sm text-zinc-400 font-light leading-relaxed">
               Tiffanny Models Academy is Indonesia&apos;s premier modeling

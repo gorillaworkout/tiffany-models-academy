@@ -5,8 +5,8 @@ export function OrganizationJsonLd() {
     name: 'Tiffanny Models Academy',
     alternateName: 'TMA',
     url: 'https://tiffannymodelsacademy.com',
-    logo: 'https://tiffannymodelsacademy.com/images/tma-magazine.jpg',
-    description: 'Akademi model profesional terbaik di Indonesia dengan cabang di Jakarta dan Bandung.',
+    logo: 'https://tiffannymodelsacademy.com/images/tma-logo.jpg',
+    description: 'Akademi model profesional terbaik di Indonesia dengan studio di Jakarta Selatan dan Bintaro.',
     foundingDate: '2024',
     founder: {
       '@type': 'Person',
@@ -15,23 +15,25 @@ export function OrganizationJsonLd() {
     address: [
       {
         '@type': 'PostalAddress',
-        addressLocality: 'Jakarta',
+        addressLocality: 'Jakarta Selatan',
         addressCountry: 'ID',
       },
       {
         '@type': 'PostalAddress',
-        addressLocality: 'Bandung',
+        addressLocality: 'Bintaro, Tangerang Selatan',
         addressCountry: 'ID',
       },
     ],
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+62-851-3352-4900',
+      telephone: '+62-859-6644-5351',
       contactType: 'customer service',
       availableLanguage: ['Indonesian', 'English'],
     },
     sameAs: [
-      'https://www.instagram.com/tiffannymodelsacademy/',
+      'https://www.instagram.com/tiffannymodelsacademy',
+      'https://www.tiktok.com/@tiffannymodelsacademy',
+      'https://www.youtube.com/@tiffannymodelsacademy',
     ],
     offers: {
       '@type': 'AggregateOffer',
@@ -80,8 +82,8 @@ export function CourseJsonLd() {
       '@type': 'CourseInstance',
       courseMode: 'onsite',
       location: [
-        { '@type': 'Place', name: 'TMA Jakarta' },
-        { '@type': 'Place', name: 'TMA Bandung' },
+        { '@type': 'Place', name: 'TMA Jakarta Selatan' },
+        { '@type': 'Place', name: 'TMA Bintaro' },
       ],
     },
   };
@@ -104,7 +106,7 @@ export function FAQJsonLd() {
         name: 'Apa itu Tiffanny Models Academy?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Tiffanny Models Academy (TMA) adalah akademi model profesional di Indonesia dengan cabang di Jakarta dan Bandung. TMA menyediakan pelatihan catwalk, foto posing, personal branding, dan runway makeup.',
+          text: 'Tiffanny Models Academy (TMA) adalah akademi model profesional di Indonesia dengan studio di Jakarta Selatan dan Bintaro. TMA menyediakan pelatihan catwalk, foto posing, personal branding, dan runway makeup.',
         },
       },
       {
@@ -128,7 +130,7 @@ export function FAQJsonLd() {
         name: 'Di mana lokasi TMA?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'TMA memiliki studio pelatihan di Jakarta dan Bandung. Kunjungi halaman kontak kami untuk alamat lengkap.',
+          text: 'TMA memiliki studio pelatihan di Jakarta Selatan dan Bintaro. Kunjungi halaman kontak kami untuk alamat lengkap.',
         },
       },
       {
