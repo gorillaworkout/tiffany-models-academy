@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const FONNTE_TOKEN = process.env.FONNTE_TOKEN || "ADm6pQpPjWqmib44gxa3bxci";
+const FONNTE_TOKEN = process.env.FONNTE_TOKEN || "ZxyYUq6dXc5GP2zABegG";
 const GROUP_ID = process.env.FONNTE_GROUP_ID || "120363407748334471@g.us";
 
 export async function POST(req: NextRequest) {
