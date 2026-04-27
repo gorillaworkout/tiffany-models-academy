@@ -16,73 +16,58 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-const categories = ["All", "Runway", "Editorial", "Behind the Scenes"];
+const categories = ["All", "Magazine", "Editorial", "Model Card", "Achievement", "Behind the Scenes"];
 
 const galleryImages = [
+  // === MAGAZINE COVERS ===
   {
-    src: "/images/tma-magazine.jpg",
-    alt: "Model TMA dalam pemotretan editorial majalah fashion Indonesia",
-    category: "Editorial",
+    src: "/images/tma-aleycia-magazine.jpg",
+    alt: "TMA Magazine — Aleycia Benita, TMA Circle 2 Cover 2025",
+    category: "Magazine",
     span: "row-span-2",
   },
   {
-    src: "/images/tma-sunglasses.jpg",
-    alt: "Model Tiffanny Models Academy berpose dengan sunglasses untuk editorial fashion",
-    category: "Editorial",
-    span: "",
-  },
-  {
-    src: "/images/tma-group.jpg",
-    alt: "Sesi pelatihan grup model di studio Tiffanny Models Academy Jakarta",
-    category: "Behind the Scenes",
-    span: "",
-  },
-  {
-    src: "/images/tma-rose.jpg",
-    alt: "Model TMA portrait elegan dengan bunga mawar untuk runway fashion show",
-    category: "Runway",
+    src: "/images/tma-azaria-magazine.jpg",
+    alt: "TMA Magazine — Azaria Rahma, TMA Circle 2 Cover 2025",
+    category: "Magazine",
     span: "row-span-2",
   },
   {
     src: "/images/tma-balqis-magazine.jpg",
-    alt: "Cover majalah TMA Magazine edisi Balqis Circle 4 - model profesional Indonesia",
+    alt: "TMA Magazine — Balqis Circle 4 Cover",
+    category: "Magazine",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-lailatusyifa-magazine.jpg",
+    alt: "TMA Magazine — Lailatusyifa Circle 2 Cover",
+    category: "Magazine",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-maudy-magazine.jpg",
+    alt: "TMA Magazine — Maudy Selany Circle 4 Cover",
+    category: "Magazine",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-magazine.jpg",
+    alt: "TMA Magazine — Editorial fashion cover",
+    category: "Magazine",
+    span: "row-span-2",
+  },
+
+  // === EDITORIAL ===
+  {
+    src: "/images/tma-azaria-editorial.jpg",
+    alt: "Azaria Rahma — Fashion editorial portrait dengan sweater maroon",
     category: "Editorial",
     span: "row-span-2",
   },
   {
     src: "/images/tma-hijab-portrait.jpg",
-    alt: "Portrait model hijab profesional dengan outfit hitam elegan - Tiffanny Models Academy",
+    alt: "Portrait model hijab profesional dengan outfit hitam elegan",
     category: "Editorial",
-    span: "",
-  },
-  {
-    src: "/images/tma-silver-skirt.jpg",
-    alt: "Model runway fashion dengan jaket kulit dan rok silver pleated - TMA fashion show",
-    category: "Runway",
-    span: "",
-  },
-  {
-    src: "/images/tma-lailatusyifa-magazine.jpg",
-    alt: "Cover majalah TMA Magazine edisi Lailatusyifa Circle 2 - editorial fashion Indonesia",
-    category: "Editorial",
-    span: "row-span-2",
-  },
-  {
-    src: "/images/tma-hijab-fashion.jpg",
-    alt: "Model hijab fashion editorial dengan outfit maroon dan vest abu-abu - TMA",
-    category: "Editorial",
-    span: "",
-  },
-  {
-    src: "/images/tma-aleycia-award.jpg",
-    alt: "Aleycia Benita 2nd Runner Up Teen Star Indonesia 2025 - prestasi alumni TMA",
-    category: "Behind the Scenes",
-    span: "",
-  },
-  {
-    src: "/images/tma-sitting-poses.jpg",
-    alt: "Pelatihan sitting poses dan teknik berpose duduk di studio Tiffanny Models Academy",
-    category: "Behind the Scenes",
     span: "",
   },
   {
@@ -92,40 +77,100 @@ const galleryImages = [
     span: "",
   },
   {
-    src: "/images/tma-maudy-magazine.jpg",
-    alt: "Cover majalah TMA Magazine edisi Maudy Selany Circle 4 - model profesional",
+    src: "/images/tma-hijab-fashion.jpg",
+    alt: "Model hijab fashion editorial dengan outfit maroon dan vest abu-abu",
+    category: "Editorial",
+    span: "",
+  },
+  {
+    src: "/images/tma-sunglasses.jpg",
+    alt: "Model TMA berpose dengan sunglasses untuk editorial fashion",
+    category: "Editorial",
+    span: "",
+  },
+  {
+    src: "/images/tma-silver-skirt.jpg",
+    alt: "Model runway fashion dengan jaket kulit dan rok silver pleated",
+    category: "Editorial",
+    span: "",
+  },
+  {
+    src: "/images/tma-rose.jpg",
+    alt: "Model TMA portrait elegan dengan bunga mawar",
     category: "Editorial",
     span: "row-span-2",
   },
+
+  // === MODEL CARDS ===
   {
     src: "/images/tma-fadia-alya.jpg",
     alt: "Fadia Alya — 25yo, 160cm, 47kg — Portfolio model profesional TMA",
-    category: "Editorial",
+    category: "Model Card",
     span: "row-span-2",
   },
   {
     src: "/images/tma-trinity-venus.jpg",
     alt: "Trinity Venus Sutrisno — 20yo, 165cm, 46kg — Portfolio model profesional TMA",
-    category: "Editorial",
+    category: "Model Card",
     span: "row-span-2",
   },
   {
     src: "/images/tma-maudy-sellany.jpg",
     alt: "Maudy Sellany — 22yo, 155cm, 44kg — Portfolio model profesional TMA",
-    category: "Editorial",
+    category: "Model Card",
     span: "row-span-2",
   },
   {
     src: "/images/tma-gabriella-ayu.jpg",
     alt: "Gabriella Ayu Bastari — 23yo, 170cm, 48kg — Portfolio model profesional TMA",
-    category: "Editorial",
+    category: "Model Card",
     span: "row-span-2",
   },
   {
     src: "/images/tma-balqis-izah.jpg",
     alt: "Balqis Izah — 25yo, 156cm, 46kg, Hijab — Portfolio model profesional TMA",
-    category: "Editorial",
+    category: "Model Card",
     span: "row-span-2",
+  },
+
+  // === ACHIEVEMENT ===
+  {
+    src: "/images/tma-puteri-muslimah-dki.jpg",
+    alt: "Alumni TMA — Puteri Muslimah Nusantara DKI Jakarta 2 2025",
+    category: "Achievement",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-puteri-muslimah-banten.jpg",
+    alt: "Alumni TMA — Puteri Muslimah Nusantara Banten 1 2025",
+    category: "Achievement",
+    span: "row-span-2",
+  },
+  {
+    src: "/images/tma-aleycia-award.jpg",
+    alt: "Aleycia Benita — 2nd Runner Up Teen Star Indonesia 2025",
+    category: "Achievement",
+    span: "",
+  },
+
+  // === BEHIND THE SCENES ===
+  {
+    src: "/images/tma-group.jpg",
+    alt: "Sesi pelatihan grup model di studio TMA",
+    category: "Behind the Scenes",
+    span: "",
+  },
+  {
+    src: "/images/tma-sitting-poses.jpg",
+    alt: "Pelatihan sitting poses dan teknik berpose duduk di studio TMA",
+    category: "Behind the Scenes",
+    span: "",
+  },
+  {
+    src: "/images/tma-group-red.jpg",
+    alt: "Group photo model TMA dalam sesi pelatihan",
+    category: "Behind the Scenes",
+    span: "",
   },
 ];
 
@@ -167,7 +212,7 @@ export default function PortfolioPage() {
       {/* Category Tabs */}
       <section className="px-6 md:px-12 pb-12">
         <div className="max-w-6xl mx-auto flex justify-center">
-          <div className="flex items-center gap-1 border border-white/10 p-1">
+          <div className="flex items-center gap-1 border border-white/10 p-1 flex-wrap justify-center">
             {categories.map((cat) => (
               <button
                 key={cat}
