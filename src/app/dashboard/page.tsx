@@ -28,6 +28,7 @@ import {
   X,
   Ruler,
   Shirt,
+  MessageSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -610,6 +611,22 @@ export default function DashboardPage() {
                 </p>
                 <div className="flex items-center text-xs font-bold uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors">
                   Open Library{" "}
+                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </a>
+
+              <a
+                href="/dashboard/reminder"
+                className="group block relative bg-zinc-900/40 border border-white/5 p-8 hover:bg-zinc-900 transition-colors"
+              >
+                <MessageSquare className="w-8 h-8 text-green-400 mb-6 group-hover:text-green-300 transition-colors" />
+                <h3 className="text-2xl font-serif mb-3">Class Reminder</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed font-light mb-8">
+                  Send class reminder to WhatsApp group. Pick time &
+                  studio, or compose a custom message.
+                </p>
+                <div className="flex items-center text-xs font-bold uppercase tracking-widest text-green-400 group-hover:text-green-300 transition-colors">
+                  Send Reminder{" "}
                   <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>
               </a>
