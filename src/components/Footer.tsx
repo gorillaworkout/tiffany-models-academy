@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, MessageCircle } from "lucide-react";
+import { Camera, MessageCircle, Play, Video } from "lucide-react";
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -52,7 +52,7 @@ export default function Footer() {
             </h4>
             <div className="space-y-4">
               <a
-                href="https://www.instagram.com/tiffannymodelsacademy/"
+                href="https://www.instagram.com/tiffannymodelsacademy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors font-light"
@@ -61,13 +61,31 @@ export default function Footer() {
                 @tiffannymodelsacademy
               </a>
               <a
-                href="https://wa.me/6285133524900"
+                href="https://www.tiktok.com/@tiffannymodelsacademy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors font-light"
+              >
+                <Play className="w-4 h-4 text-red-500" />
+                TikTok
+              </a>
+              <a
+                href="https://www.youtube.com/@tiffannymodelsacademy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors font-light"
+              >
+                <Video className="w-4 h-4 text-red-500" />
+                YouTube
+              </a>
+              <a
+                href="https://wa.me/6285966445351"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors font-light"
               >
                 <MessageCircle className="w-4 h-4 text-red-500" />
-                +62 851-3352-4900
+                +62 859-6644-5351
               </a>
             </div>
           </div>

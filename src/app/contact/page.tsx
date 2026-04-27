@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { MapPin, MessageCircle, Mail, Camera, Send } from "lucide-react";
+import { MapPin, MessageCircle, Mail, Camera, Send, Play, Video } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -21,14 +21,14 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Location",
-    lines: ["Jakarta & Bandung", "Indonesia"],
+    lines: ["Jakarta Selatan & Bintaro", "Indonesia"],
     href: null,
   },
   {
     icon: MessageCircle,
     title: "WhatsApp",
-    lines: ["+62 851-3352-4900"],
-    href: "https://wa.me/6285133524900",
+    lines: ["+62 859-6644-5351"],
+    href: "https://wa.me/6285966445351",
   },
   {
     icon: Mail,
@@ -40,7 +40,19 @@ const contactInfo = [
     icon: Camera,
     title: "Instagram",
     lines: ["@tiffannymodelsacademy"],
-    href: "https://www.instagram.com/tiffannymodelsacademy/",
+    href: "https://www.instagram.com/tiffannymodelsacademy",
+  },
+  {
+    icon: Play,
+    title: "TikTok",
+    lines: ["@tiffannymodelsacademy"],
+    href: "https://www.tiktok.com/@tiffannymodelsacademy",
+  },
+  {
+    icon: Video,
+    title: "YouTube",
+    lines: ["@tiffannymodelsacademy"],
+    href: "https://www.youtube.com/@tiffannymodelsacademy",
   },
 ];
 
@@ -108,7 +120,7 @@ export default function ContactPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={stagger}
-          className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {contactInfo.map((info) => {
             const Wrapper = info.href ? "a" : "div";
@@ -273,15 +285,23 @@ export default function ContactPage() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 bg-red-500 rounded-full" />
               <h3 className="text-xs uppercase tracking-widest text-zinc-500">
-                Jakarta Studio
+                Jakarta Selatan Studio
               </h3>
             </div>
-            <p className="font-serif text-xl mb-3">Jakarta Branch</p>
-            <p className="text-sm text-zinc-400 font-light leading-relaxed">
-              Our Jakarta studio serves as the main training hub, equipped with
+            <p className="font-serif text-xl mb-3">Jakarta Selatan</p>
+            <p className="text-sm text-zinc-400 font-light leading-relaxed mb-4">
+              Our Jakarta Selatan studio serves as the main training hub, equipped with
               professional runway space, lighting setups, and photography
               studios.
             </p>
+            <a
+              href="https://maps.app.goo.gl/okdYMG6Z7mMHLEf56"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors"
+            >
+              <MapPin className="w-3 h-3" /> View on Maps
+            </a>
           </motion.div>
           <motion.div
             variants={fadeInUp}
@@ -290,15 +310,23 @@ export default function ContactPage() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 bg-red-500 rounded-full" />
               <h3 className="text-xs uppercase tracking-widest text-zinc-500">
-                Bandung Studio
+                Bintaro Studio
               </h3>
             </div>
-            <p className="font-serif text-xl mb-3">Bandung Branch</p>
-            <p className="text-sm text-zinc-400 font-light leading-relaxed">
-              Our Bandung location brings TMA&apos;s world-class training to West
-              Java, offering the same professional curriculum and coaching
+            <p className="font-serif text-xl mb-3">Bintaro</p>
+            <p className="text-sm text-zinc-400 font-light leading-relaxed mb-4">
+              Our Bintaro location brings TMA&apos;s world-class training to the
+              Tangerang Selatan area, offering the same professional curriculum and coaching
               quality.
             </p>
+            <a
+              href="https://maps.app.goo.gl/q1XuD7fe9bH9pN4U9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors"
+            >
+              <MapPin className="w-3 h-3" /> View on Maps
+            </a>
           </motion.div>
         </motion.div>
       </section>
