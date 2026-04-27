@@ -124,3 +124,11 @@ export const ebookModules = sqliteTable("ebook_modules", {
   description: text("description"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
+
+// 11. WhatsApp Groups (for Fonnte reminders)
+export const waGroups = sqliteTable("wa_groups", {
+  id: text("id").primaryKey(), // UUID
+  name: text("name").notNull(), // Display name, e.g. "TMA Batch 1 Jakarta"
+  groupId: text("group_id").notNull(), // WA group ID, e.g. "120363407748334471@g.us"
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
