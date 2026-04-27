@@ -56,9 +56,9 @@ export default function Navbar() {
             <Image
               src="/images/tma-logo.png"
               alt="TMA Logo"
-              width={48}
+              width={120}
               height={48}
-              className="h-10 w-auto"
+              className="h-12 w-auto invert brightness-200"
               priority
             />
           </Link>
