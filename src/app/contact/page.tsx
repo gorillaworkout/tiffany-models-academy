@@ -69,9 +69,12 @@ export default function ContactPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    // Simulate submission
-    await new Promise((res) => setTimeout(res, 1000));
-    toast.success("Message sent! We'll get back to you soon.");
+    const { name, email, subject, message } = formData;
+    const waText = `Halo TMA! 👋\n\nNama: ${name}\nEmail: ${email}\nSubject: ${subject}\n\n${message}`;
+    const waUrl = `https://wa.me/6285966445351?text=${encodeURIComponent(waText)}`;
+
+    window.open(waUrl, "_blank");
+    toast.success("Redirecting to WhatsApp...");
     setFormData({ name: "", email: "", subject: "", message: "" });
     setSubmitting(false);
   };
