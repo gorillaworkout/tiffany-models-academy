@@ -5,7 +5,7 @@ export function OrganizationJsonLd() {
     name: 'Tiffanny Models Academy',
     alternateName: 'TMA',
     url: 'https://tiffannymodelsacademy.com',
-    logo: 'https://tiffannymodelsacademy.com/images/tma-logo.jpg',
+    logo: 'https://tiffannymodelsacademy.com/images/tma-logo.png',
     description: 'Akademi model profesional terbaik di Indonesia dengan studio di Jakarta Selatan dan Bintaro.',
     foundingDate: '2024',
     founder: {

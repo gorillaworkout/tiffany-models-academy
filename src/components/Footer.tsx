@@ -19,7 +19,7 @@ export default function Footer() {
           {/* About TMA */}
           <div>
             <Image
-              src="/images/tma-logo.jpg"
+              src="/images/tma-logo.png"
               alt="TMA Logo"
               width={80}
               height={80}
