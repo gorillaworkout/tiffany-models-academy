@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { d1Query } from "@/lib/d1";
 
-const LIMITS = { skill: 20, speed: 30, freestyle: 30 };
+const LIMITS = { skill: 60, speed: 60, freestyle: 60 };
 
 function corsHeaders() {
   return {
@@ -69,9 +69,9 @@ export async function POST(req: Request) {
       + (parsed.free_13_15.male + parsed.free_13_15.female)
       + (parsed.free_16_open.male + parsed.free_16_open.female);
 
-    // Check existing confirmed + pending slots
+    // Check existing CONFIRMED slots only — pending don't count toward limit
     const rows: any[] = await d1Query(
-      "SELECT skill_7_8, speed_8_9, speed_10_12, speed_13_15, free_10_12, free_13_15, free_16_open FROM vpc_registrations WHERE status IN ('confirmed', 'pending')"
+      "SELECT skill_7_8, speed_8_9, speed_10_12, speed_13_15, free_10_12, free_13_15, free_16_open FROM vpc_registrations WHERE status = 'confirmed'"
     );
 
     let usedSkill = 0, usedSpeed = 0, usedFreestyle = 0;

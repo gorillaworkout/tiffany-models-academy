@@ -2,11 +2,11 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { d1Query } from "@/lib/d1";
 
-// Max participants per section
+// 60 participants per section
 const LIMITS = {
-  skill: 20,    // Skill Challenges total
-  speed: 30,    // Speedrun total
-  freestyle: 30 // Freestyle total
+  skill: 60,
+  speed: 60,
+  freestyle: 60,
 };
 
 function corsHeaders() {
@@ -32,9 +32,9 @@ function parseJSON(str: string) {
 
 export async function GET() {
   try {
-    // Only count confirmed + pending registrations (not rejected)
+    // Only count CONFIRMED registrations — slots decrease after admin approval
     const rows: any[] = await d1Query(
-      "SELECT skill_7_8, speed_8_9, speed_10_12, speed_13_15, free_10_12, free_13_15, free_16_open FROM vpc_registrations WHERE status IN ('confirmed', 'pending')"
+      "SELECT skill_7_8, speed_8_9, speed_10_12, speed_13_15, free_10_12, free_13_15, free_16_open FROM vpc_registrations WHERE status = 'confirmed'"
     );
 
     let skillUsed = 0;
