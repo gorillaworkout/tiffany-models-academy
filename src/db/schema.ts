@@ -132,3 +132,27 @@ export const waGroups = sqliteTable("wa_groups", {
   groupId: text("group_id").notNull(), // WA group ID, e.g. "120363407748334471@g.us"
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
+
+// ── VATA Parkour Challenge (VPC) ────────────────────────────────────────────
+
+// 12. VPC Registrations — invitation form submissions from clubs/schools
+export const vpcRegistrations = sqliteTable("vpc_registrations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clubName: text("club_name").notNull(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  // Category counts stored as JSON: { male: number, female: number }
+  skillChallenge7_8: text("skill_7_8").notNull().default('{"male":0,"female":0}'),
+  speedrun8_9: text("speed_8_9").notNull().default('{"male":0,"female":0}'),
+  speedrun10_12: text("speed_10_12").notNull().default('{"male":0,"female":0}'),
+  speedrun13_15: text("speed_13_15").notNull().default('{"male":0,"female":0}'),
+  freestyle10_12: text("free_10_12").notNull().default('{"male":0,"female":0}'),
+  freestyle13_15: text("free_13_15").notNull().default('{"male":0,"female":0}'),
+  freestyle16Open: text("free_16_open").notNull().default('{"male":0,"female":0}'),
+  totalParticipants: integer("total_participants").notNull().default(0),
+  notes: text("notes"),
+  status: text("status").notNull().default("pending"), // pending, confirmed, rejected
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
