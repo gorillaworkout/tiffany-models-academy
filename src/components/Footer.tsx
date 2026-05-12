@@ -27,9 +27,7 @@ export default function Footer() {
             />
             <div className="w-8 h-[2px] bg-red-500 mb-6" />
             <p className="text-sm text-zinc-400 font-light leading-relaxed">
-              Tiffanny Models Academy is Indonesia&apos;s premier modeling
-              academy, empowering aspiring models with professional training,
-              confidence building, and real industry connections.
+              Tiffanny Models Academy is a professional modeling school dedicated to developing confidence, elegance, and personal growth in every student.
             </p>
           </div>
 

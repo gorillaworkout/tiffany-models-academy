@@ -273,9 +273,7 @@ export default function HomePage() {
             </h2>
             <div className="space-y-6 text-zinc-400 font-light leading-relaxed">
               <p>
-                Tiffanny Models Academy (TMA) is not just about teaching you how
-                to walk. It&apos;s about building confidence, character, and the
-                professional mindset required in the modern fashion industry.
+                Tiffanny Models Academy is a professional modeling school dedicated to developing confidence, elegance, and personal growth in every student. More than teaching catwalk and posing techniques, Tiffanny Models Academy provides a supportive learning environment where aspiring models can build communication skills, professionalism, self-confidence, and strong character. Tiffanny Models Academy is committed to shaping empowered individuals who are prepared to grow with grace, purpose, and excellence.
               </p>
               <p>
                 Our curriculum covers everything from basic catwalk mechanics and

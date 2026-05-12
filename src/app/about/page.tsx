@@ -162,10 +162,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-6 text-zinc-400 font-light leading-relaxed">
               <p>
-                Tiffanny Models Academy was founded by Nadira Tiffanny with a
-                singular vision: to create a professional modeling academy that
-                empowers aspiring models across Indonesia with the skills,
-                confidence, and connections they need to succeed.
+                Tiffanny Models Academy is a professional modeling school dedicated to developing confidence, elegance, and personal growth in every student. More than teaching catwalk and posing techniques, Tiffanny Models Academy provides a supportive learning environment where aspiring models can build communication skills, professionalism, self-confidence, and strong character. Tiffanny Models Academy is committed to shaping empowered individuals who are prepared to grow with grace, purpose, and excellence.
               </p>
               <p>
                 What started as a passion for fashion and empowerment has grown
