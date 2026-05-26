@@ -276,7 +276,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-24 px-6 md:px-12 bg-zinc-950 border-t border-white/5">
+      {/* <section className="py-24 px-6 md:px-12 bg-zinc-950 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial="hidden"
@@ -319,7 +319,7 @@ export default function AboutPage() {
             ))}
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Academy Stats */}
       <section className="py-24 px-6 md:px-12 bg-black border-t border-white/5">
